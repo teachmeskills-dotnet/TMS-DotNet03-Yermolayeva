@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyProject.Domain
+namespace MyProject.DAL
 {
     public class Class1
     {

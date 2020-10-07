@@ -8,17 +8,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MyProject.Application.Extensions;
+using MyProject.BLL.Extensions;
 
 namespace MyProject.Web
 {
     public class Startup
     {
-        public Startup()
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json");
-            Configuration = builder.Build();
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            //var builder = new ConfigurationBuilder()
+            //    .AddJsonFile("appsettings.json");
+            //Configuration = builder.Build();
         }
         public IConfiguration Configuration { get; } 
 

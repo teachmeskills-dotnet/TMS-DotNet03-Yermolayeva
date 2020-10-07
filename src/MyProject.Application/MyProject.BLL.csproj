@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,6 +7,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20201005132849_AddIdentity.cs" />
     <Compile Remove="Migrations\20201005132849_AddIdentity.Designer.cs" />
+    <Compile Remove="Migrations\20201007115125_AddProfileTable.cs" />
+    <Compile Remove="Migrations\20201007115125_AddProfileTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyProject.Common\MyProject.Common.csproj" />
-    <ProjectReference Include="..\MyProject.Domain\MyProject.Domain.csproj" />
+    <ProjectReference Include="..\MyProject.Domain\MyProject.DAL.csproj" />
   </ItemGroup>
 
 </Project>

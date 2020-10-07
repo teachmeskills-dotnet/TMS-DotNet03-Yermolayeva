@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyProject.Application.Context;
+using MyProject.BLL.Context;
 
-namespace MyProject.Application.Migrations
+namespace MyProject.BLL.Migrations
 {
     [DbContext(typeof(MyProjectContext))]
     [Migration("20201005134444_AddIdentity")]

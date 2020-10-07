@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyProject.Application.Context;
+using MyProject.BLL.Context;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MyProject.Application.Extensions
+namespace MyProject.BLL.Extensions
 {
     public static class ApplicationServiceCollectionExtension
     {

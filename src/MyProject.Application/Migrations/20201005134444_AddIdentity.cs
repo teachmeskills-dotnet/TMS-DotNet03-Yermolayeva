@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace MyProject.Application.Migrations
+namespace MyProject.BLL.Migrations
 {
     public partial class AddIdentity : Migration
     {

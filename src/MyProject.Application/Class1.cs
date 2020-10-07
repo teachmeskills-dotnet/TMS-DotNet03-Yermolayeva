@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyProject.Application
+namespace MyProject.BLL
 {
     public class Class1
     {
