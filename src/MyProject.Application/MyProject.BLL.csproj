@@ -13,6 +13,8 @@
     <Compile Remove="Migrations\20201007123100_AddOrderTable.Designer.cs" />
     <Compile Remove="Migrations\20201007124408_AddOrderTable.cs" />
     <Compile Remove="Migrations\20201007124408_AddOrderTable.Designer.cs" />
+    <Compile Remove="Migrations\20201008061843_AddTagTable.cs" />
+    <Compile Remove="Migrations\20201008061843_AddTagTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

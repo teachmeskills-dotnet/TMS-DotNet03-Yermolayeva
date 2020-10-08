@@ -20,6 +20,24 @@ namespace MyProject.DAL.Entities
         /// </summary>
         public ICollection<Order> ClientOrders { get; set; }
 
+        /// <summary>
+        ///Navigation to orders. 
+        /// </summary>
         public ICollection<Order> VendorOrders { get; set; }
+
+        /// <summary>
+        ///Navigation to user tags. 
+        /// </summary>
+        public ICollection<UserTags> UserTags { get; set; }
+
+        /// <summary>
+        ///Navigation to comments. 
+        /// </summary>
+        public ICollection<Comment> AuthorComments { get; set; }
+
+        /// <summary>
+        ///Navigation to comments. 
+        /// </summary>
+        public ICollection<Comment> ProfileComments { get; set; }
     }
 }

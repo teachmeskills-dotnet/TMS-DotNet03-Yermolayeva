@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyProject.BLL.Context;
 
 namespace MyProject.BLL.Migrations
 {
     [DbContext(typeof(MyProjectContext))]
-    partial class MyProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20201008062226_AddTagTable")]
+    partial class AddTagTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,34 +223,6 @@ namespace MyProject.BLL.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("MyProject.DAL.Entities.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AuthorId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProfileId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("ProfileId");
-
-                    b.ToTable("Comments");
-                });
-
             modelBuilder.Entity("MyProject.DAL.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -335,8 +309,8 @@ namespace MyProject.BLL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
 
                     b.HasKey("Id");
 
@@ -375,29 +349,6 @@ namespace MyProject.BLL.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("Tasks");
-                });
-
-            modelBuilder.Entity("MyProject.DAL.Entities.UserTags", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TagId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTags");
                 });
 
             modelBuilder.Entity("MyProject.DAL.Entities.ApplicationUser", b =>
@@ -458,19 +409,6 @@ namespace MyProject.BLL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyProject.DAL.Entities.Comment", b =>
-                {
-                    b.HasOne("MyProject.DAL.Entities.ApplicationUser", "Author")
-                        .WithMany("AuthorComments")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MyProject.DAL.Entities.ApplicationUser", "Profile")
-                        .WithMany("ProfileComments")
-                        .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
             modelBuilder.Entity("MyProject.DAL.Entities.Order", b =>
                 {
                     b.HasOne("MyProject.DAL.Entities.ApplicationUser", "Client")
@@ -500,21 +438,6 @@ namespace MyProject.BLL.Migrations
                     b.HasOne("MyProject.DAL.Entities.Order", "Order")
                         .WithMany("Tasks")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MyProject.DAL.Entities.UserTags", b =>
-                {
-                    b.HasOne("MyProject.DAL.Entities.Tag", "Tag")
-                        .WithMany("UserTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("MyProject.DAL.Entities.ApplicationUser", "User")
-                        .WithMany("UserTags")
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

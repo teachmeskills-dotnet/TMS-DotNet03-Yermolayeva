@@ -31,5 +31,6 @@ namespace MyProject.DAL.Entities
         public string Info { get; set; }
 
         public DateTime Created { get; set; }
+
     }
 }

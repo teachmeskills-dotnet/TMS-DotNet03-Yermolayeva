@@ -34,6 +34,21 @@ namespace MyProject.BLL.Context
         /// </summary>
         public DbSet<Task> Tasks { get; set; }
 
+        /// <summary>
+        /// Tags.
+        /// </summary>
+        public DbSet<Tag> Tags { get; set; }
+
+        /// <summary>
+        /// UserTags.
+        /// </summary>
+        public DbSet<UserTags> UserTags { get; set; }
+
+        /// <summary>
+        /// Comments.
+        /// </summary>
+        public DbSet<Comment> Comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder = modelBuilder ?? throw new ArgumentNullException(nameof(modelBuilder));
@@ -41,6 +56,9 @@ namespace MyProject.BLL.Context
             modelBuilder.ApplyConfiguration(new ProfileConfiguration());
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new TaskConfiguration());
+            modelBuilder.ApplyConfiguration(new TagConfiguration());
+            modelBuilder.ApplyConfiguration(new UserTagsConfiguration());
+            modelBuilder.ApplyConfiguration(new CommentConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

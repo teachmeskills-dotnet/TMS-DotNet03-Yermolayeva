@@ -12,7 +12,7 @@ namespace MyProject.Common.Constants
         public const string DateFormat = "date";
         public const string DecimalFormat = "decimal";
 
-        public const int ShortLenghtForStringField = 128;
+        public const int ShortLenghtForStringField = 64;
 
         /// <summary>
         /// Standart length for string field.

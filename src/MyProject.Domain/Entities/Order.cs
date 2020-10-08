@@ -23,6 +23,5 @@ namespace MyProject.DAL.Entities
         public ApplicationUser Vendor { get; set; }
 
         public ICollection<Task> Tasks { get; set; }
-
     }
 }
