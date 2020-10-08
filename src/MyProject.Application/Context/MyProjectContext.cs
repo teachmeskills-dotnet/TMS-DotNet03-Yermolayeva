@@ -24,11 +24,23 @@ namespace MyProject.BLL.Context
         /// </summary>
         public DbSet<Profile> Profiles { get; set; }
 
+        /// <summary>
+        /// Orders.
+        /// </summary>
+        public DbSet<Order> Orders { get; set; }
+
+        /// <summary>
+        /// Tasks.
+        /// </summary>
+        public DbSet<Task> Tasks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder = modelBuilder ?? throw new ArgumentNullException(nameof(modelBuilder));
 
             modelBuilder.ApplyConfiguration(new ProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new TaskConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

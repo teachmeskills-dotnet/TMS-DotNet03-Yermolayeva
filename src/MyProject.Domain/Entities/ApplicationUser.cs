@@ -14,5 +14,12 @@ namespace MyProject.DAL.Entities
         /// Navigation to profile.
         /// </summary>
         public Profile Profile { get; set; }
+
+        /// <summary>
+        ///Navigation to orders. 
+        /// </summary>
+        public ICollection<Order> ClientOrders { get; set; }
+
+        public ICollection<Order> VendorOrders { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace MyProject.Common.Constants
     public static class ConfigurationConstants
     {
         public const string DateFormat = "date";
+        public const string DecimalFormat = "decimal";
 
         public const int ShortLenghtForStringField = 128;
 

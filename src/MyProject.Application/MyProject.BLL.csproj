@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -9,6 +9,10 @@
     <Compile Remove="Migrations\20201005132849_AddIdentity.Designer.cs" />
     <Compile Remove="Migrations\20201007115125_AddProfileTable.cs" />
     <Compile Remove="Migrations\20201007115125_AddProfileTable.Designer.cs" />
+    <Compile Remove="Migrations\20201007123100_AddOrderTable.cs" />
+    <Compile Remove="Migrations\20201007123100_AddOrderTable.Designer.cs" />
+    <Compile Remove="Migrations\20201007124408_AddOrderTable.cs" />
+    <Compile Remove="Migrations\20201007124408_AddOrderTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
