@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace MyProject.BLL.Migrations
+namespace MyProject.DAL.Migrations
 {
     public partial class AddUserTagsTable : Migration
     {

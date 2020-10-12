@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyProject.BLL.Configurations;
+using MyProject.DAL.Configurations;
 using MyProject.DAL.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace MyProject.BLL.Context
+namespace MyProject.DAL.Context
 {
     /// <summary>
     /// Database context.

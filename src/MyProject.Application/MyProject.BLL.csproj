@@ -5,19 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20201005132849_AddIdentity.cs" />
-    <Compile Remove="Migrations\20201005132849_AddIdentity.Designer.cs" />
-    <Compile Remove="Migrations\20201007115125_AddProfileTable.cs" />
-    <Compile Remove="Migrations\20201007115125_AddProfileTable.Designer.cs" />
-    <Compile Remove="Migrations\20201007123100_AddOrderTable.cs" />
-    <Compile Remove="Migrations\20201007123100_AddOrderTable.Designer.cs" />
-    <Compile Remove="Migrations\20201007124408_AddOrderTable.cs" />
-    <Compile Remove="Migrations\20201007124408_AddOrderTable.Designer.cs" />
-    <Compile Remove="Migrations\20201008061843_AddTagTable.cs" />
-    <Compile Remove="Migrations\20201008061843_AddTagTable.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />

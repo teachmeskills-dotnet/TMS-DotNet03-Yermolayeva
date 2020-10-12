@@ -3,10 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MyProject.Common.Constants;
 using MyProject.DAL.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace MyProject.BLL.Configurations
+namespace MyProject.DAL.Configurations
 {
     class CommentConfiguration : IEntityTypeConfiguration<Comment>
     {

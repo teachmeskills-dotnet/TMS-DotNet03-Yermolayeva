@@ -1,4 +1,4 @@
-﻿namespace MyProject.BLL.Context
+﻿namespace MyProject.DAL.Context
 {
     public class IdentityContext
     {
