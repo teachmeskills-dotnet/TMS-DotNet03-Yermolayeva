@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Index page";
+}
+@if (User.Identity.IsAuthenticated)
+{
+    <p>@User.Identity.Name</p>
+    <form method="post" asp-controller="Account" asp-action="LogOut">
+        <input type="submit" value="Выйти">
+    </form>
+}
+else
+{
+    <a asp-controller="Account" asp-action="SignUp">Sign Up</a>
+    <a asp-controller="Account" asp-action="SignIn">Sign In</a>
+}
