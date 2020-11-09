@@ -30,7 +30,7 @@ namespace HandiworkShop.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _accountManager.SignUpAsync(model.Email, model.Username, model.Password);
+                var result = await _accountManager.SignUpAsync(model.Email, model.Username, model.Password, model.IsVendor);
 
                 if (result.Item1.Succeeded)
                 {

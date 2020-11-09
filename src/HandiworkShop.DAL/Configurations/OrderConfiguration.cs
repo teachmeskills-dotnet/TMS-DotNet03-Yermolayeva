@@ -22,9 +22,6 @@ namespace HandiworkShop.DAL.Configurations
             builder.Property(o => o.ClientId)
                 .IsRequired();
 
-            builder.Property(o => o.VendorId)
-                .IsRequired();
-
             builder.Property(o => o.Title)
                 .IsRequired()
                 .HasMaxLength(ConfigurationConstants.StandartLenghtForStringField);

@@ -11,7 +11,7 @@ namespace HandiworkShop.BLL.Interfaces
     /// Generic repository provide all base needed methods (CRUD).
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    interface IRepository<T> where T : class
+    public interface IRepository<T> where T : class
     {
         /// <summary>
         /// Create new entity async.

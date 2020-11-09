@@ -40,7 +40,7 @@ namespace HandiworkShop.DAL.Context
         /// <summary>
         /// UserTags.
         /// </summary>
-        public DbSet<UserTags> UserTags { get; set; }
+        public DbSet<UserTag> UserTags { get; set; }
 
         /// <summary>
         /// Comments.

@@ -18,7 +18,8 @@ namespace HandiworkShop.BLL.Interfaces
         /// <param name="email">Email.</param>
         /// <param name="userName">Username.</param>
         /// <param name="password">Password.</param>
+        /// <param name="isVendor">Is vendor.</param>
         /// <returns>Identity result and user.</returns>
-        System.Threading.Tasks.Task<(IdentityResult, ApplicationUser)> SignUpAsync(string email, string userName, string password);
+        System.Threading.Tasks.Task<(IdentityResult, ApplicationUser)> SignUpAsync(string email, string userName, string password, bool isVendor);
     }
 }

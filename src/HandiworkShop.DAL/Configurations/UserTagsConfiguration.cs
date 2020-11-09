@@ -6,9 +6,9 @@ using System;
 
 namespace HandiworkShop.DAL.Configurations
 {
-    public class UserTagsConfiguration : IEntityTypeConfiguration<UserTags>
+    public class UserTagsConfiguration : IEntityTypeConfiguration<UserTag>
     {
-        public void Configure(EntityTypeBuilder<UserTags> builder)
+        public void Configure(EntityTypeBuilder<UserTag> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));
 

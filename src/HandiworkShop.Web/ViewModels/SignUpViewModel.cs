@@ -19,9 +19,11 @@ namespace HandiworkShop.Web.ViewModels
         [Display(Name = "Имя пользователя")]
         public string Username { get; set; }
 
-        //[Required]
-        //[Display(Name = "Год рождения")]
-        //public int Year { get; set; }
+        /// <summary>
+        /// Is vendor.
+        /// </summary>
+        [Display(Name = "Продавец")]
+        public bool IsVendor { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

@@ -13,6 +13,8 @@ namespace HandiworkShop.DAL.Entities
 
         public int Rating { get; set; }
 
+        public DateTime Created { get; set; }
+
         public string AuthorId { get; set; }
 
         /// <summary>

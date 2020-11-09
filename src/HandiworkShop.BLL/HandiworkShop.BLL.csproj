@@ -19,8 +19,4 @@
     <ProjectReference Include="..\HandiworkShop.DAL\HandiworkShop.DAL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>

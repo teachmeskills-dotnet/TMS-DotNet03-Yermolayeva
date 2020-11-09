@@ -15,6 +15,16 @@ namespace HandiworkShop.DAL.Configurations
             builder.ToTable(TableConstants.CommentTable)
                 .HasKey(o => o.Id);
 
+            builder.Property(c => c.AuthorId)
+                .IsRequired();
+
+            builder.Property(c => c.ProfileId)
+               .IsRequired();
+
+            builder.Property(c => c.Created)
+               .IsRequired()
+               .HasColumnType(ConfigurationConstants.DateFormat);
+
             builder.HasOne(c => c.Author)
                .WithMany(i => i.AuthorComments)
                .HasForeignKey(c => c.AuthorId)

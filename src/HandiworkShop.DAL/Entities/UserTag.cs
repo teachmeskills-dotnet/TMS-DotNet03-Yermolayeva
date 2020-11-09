@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HandiworkShop.DAL.Entities
 {
-    public class UserTags : IHasDbIdentity, IHasUserIdentity
+    public class UserTag : IHasDbIdentity, IHasUserIdentity
     {
         public int Id { get; set; }
 
