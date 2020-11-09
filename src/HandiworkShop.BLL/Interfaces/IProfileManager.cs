@@ -38,6 +38,13 @@ namespace HandiworkShop.BLL.Interfaces
         /// Get all vendor profiles.
         /// </summary>
         /// <returns>A collection of vendor profiles.</returns>
-        System.Threading.Tasks.Task<IEnumerable<ProfileDto>> GetAllVendorProfiles();
+        System.Threading.Tasks.Task<IEnumerable<ProfileDto>> GetAllVendorProfilesAsync();
+
+        /// <summary>
+        /// Get profiles by tags.
+        /// </summary>
+        /// <param name="tags">Tags.</param>
+        /// <returns>A collection of profiles.</returns>
+        System.Threading.Tasks.Task<IEnumerable<ProfileDto>> GetProfilesByTagsAsync(IList<TagDto> tags);
     }
 }
