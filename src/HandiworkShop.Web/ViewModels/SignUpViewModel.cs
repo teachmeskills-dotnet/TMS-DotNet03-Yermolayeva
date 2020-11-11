@@ -19,9 +19,6 @@ namespace HandiworkShop.Web.ViewModels
         [Display(Name = "Имя пользователя")]
         public string Username { get; set; }
 
-        /// <summary>
-        /// Is vendor.
-        /// </summary>
         [Display(Name = "Продавец")]
         public bool IsVendor { get; set; }
 

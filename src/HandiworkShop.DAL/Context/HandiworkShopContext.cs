@@ -43,6 +43,11 @@ namespace HandiworkShop.DAL.Context
         public DbSet<UserTag> UserTags { get; set; }
 
         /// <summary>
+        /// OrderTags.
+        /// </summary>
+        public DbSet<OrderTag> OrderTags { get; set; }
+
+        /// <summary>
         /// Comments.
         /// </summary>
         public DbSet<Comment> Comments { get; set; }
@@ -55,7 +60,8 @@ namespace HandiworkShop.DAL.Context
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new TaskConfiguration());
             modelBuilder.ApplyConfiguration(new TagConfiguration());
-            modelBuilder.ApplyConfiguration(new UserTagsConfiguration());
+            modelBuilder.ApplyConfiguration(new UserTagConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderTagConfiguration());
             modelBuilder.ApplyConfiguration(new CommentConfiguration());
 
             base.OnModelCreating(modelBuilder);

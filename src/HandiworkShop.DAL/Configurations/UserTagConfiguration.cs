@@ -6,13 +6,13 @@ using System;
 
 namespace HandiworkShop.DAL.Configurations
 {
-    public class UserTagsConfiguration : IEntityTypeConfiguration<UserTag>
+    public class UserTagConfiguration : IEntityTypeConfiguration<UserTag>
     {
         public void Configure(EntityTypeBuilder<UserTag> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));
 
-            builder.ToTable(TableConstants.UserTagsTable)
+            builder.ToTable(TableConstants.UserTagTable)
                 .HasKey(u => u.Id);
 
             builder.Property(u => u.TagId)

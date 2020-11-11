@@ -15,5 +15,10 @@ namespace HandiworkShop.DAL.Entities
         /// Navigation to user tags.
         /// </summary>
         public ICollection<UserTag> UserTags { get; set; }
+
+        /// <summary>
+        /// Navigation to order tags.
+        /// </summary>
+        public ICollection<OrderTag> OrderTags { get; set; }
     }
 }

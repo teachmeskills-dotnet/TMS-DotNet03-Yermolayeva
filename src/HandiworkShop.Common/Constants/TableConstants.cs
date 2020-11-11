@@ -37,6 +37,11 @@ namespace HandiworkShop.Common.Constants
         /// <summary>
         /// Connection table for user tags.
         /// </summary>
-        public const string UserTagsTable = "UserTags";
+        public const string UserTagTable = "UserTags";
+
+        /// <summary>
+        /// Connection table for order tags.
+        /// </summary>
+        public const string OrderTagTable = "OrderTags";
     }
 }

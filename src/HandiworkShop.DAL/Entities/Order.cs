@@ -23,5 +23,8 @@ namespace HandiworkShop.DAL.Entities
         public ApplicationUser Vendor { get; set; }
 
         public ICollection<Task> Tasks { get; set; }
+
+        public ICollection<OrderTag> OrderTags { get; set; }
+
     }
 }
