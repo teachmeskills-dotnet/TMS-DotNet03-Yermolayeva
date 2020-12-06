@@ -20,12 +20,14 @@ namespace HandiworkShop.DAL.Configurations
 
             builder.Property(t => t.Title)
                 .IsRequired()
-                .HasMaxLength(ConfigurationConstants.StandartLenghtForStringField);
+                .HasMaxLength(ConfigurationConstants.LongLenghtForStringField);
 
             builder.Property(t => t.Start)
+                .IsRequired()
                 .HasColumnType(ConfigurationConstants.DateFormat);
 
             builder.Property(t => t.End)
+                //.IsRequired()
                 .HasColumnType(ConfigurationConstants.DateFormat);
 
             builder.HasOne(t => t.Order)

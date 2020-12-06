@@ -10,6 +10,10 @@ using HandiworkShop.BLL.Managers;
 using HandiworkShop.DAL.Context;
 using HandiworkShop.DAL.Entities;
 using HandiworkShop.BLL.Repository;
+using Serilog;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Threading.Tasks;
+using HandiworkShop.Web.Extensions;
 
 namespace HandiworkShop.Web
 {
@@ -24,33 +28,42 @@ namespace HandiworkShop.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IRepository<Order>, Repository<Order>>();
-            services.AddScoped<IRepository<Task>, Repository<Task>>();
+            services.AddScoped<IRepository<DAL.Entities.Task>, Repository<DAL.Entities.Task>>();
             services.AddScoped<IRepository<Tag>, Repository<Tag>>();
             services.AddScoped<IRepository<Profile>, Repository<Profile>>();
-            services.AddScoped<IRepository<Comment>, Repository<Comment>>();
             services.AddScoped<IRepository<UserTag>, Repository<UserTag>>();
+            services.AddScoped<IRepository<OrderTag>, Repository<OrderTag>>();
 
             services.AddScoped<IAccountManager, AccountManager>();
             services.AddScoped<IProfileManager, ProfileManager>();
             services.AddScoped<IOrderManager, OrderManager>();
             services.AddScoped<ITaskManager, TaskManager>();
             services.AddScoped<ITagManager, TagManager>();
-            services.AddScoped<ICommentManager, CommentManager>();
 
+            services.AddRazorPages()
+                .AddRazorRuntimeCompilation();
 
             string connectionString = Configuration.GetConnectionString("HandiworkShopApp");
             services.AddDbContext<HandiworkShopContext>(options => options.UseSqlServer(connectionString));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<HandiworkShopContext>();
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireDigit = true;
+            })
+                .AddEntityFrameworkStores<HandiworkShopContext>()
+                .AddDefaultTokenProviders();
 
             services.AddControllersWithViews();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            app.UseDeveloperExceptionPage();
-
+            //app.UseDeveloperExceptionPage();
+            app.UseSerilogRequestLogging();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -59,12 +72,33 @@ namespace HandiworkShop.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<ErrorHandlerMiddleware>();
+
+            CreateRoles(serviceProvider);
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            });      
+        }
+
+        private void CreateRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            Task<IdentityResult> roleResult;
+
+            Task<bool> hasVendorRole = roleManager.RoleExistsAsync("Vendor");
+            hasVendorRole.Wait();
+
+            if (!hasVendorRole.Result)
+            {
+                roleResult = roleManager.CreateAsync(new IdentityRole("Vendor"));
+                roleResult.Wait();
+            }
         }
     }
 }

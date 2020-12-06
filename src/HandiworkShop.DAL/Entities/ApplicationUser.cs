@@ -14,12 +14,12 @@ namespace HandiworkShop.DAL.Entities
         public Profile Profile { get; set; }
 
         /// <summary>
-        ///Navigation to orders. 
+        ///Navigation to client orders. 
         /// </summary>
         public ICollection<Order> ClientOrders { get; set; }
 
         /// <summary>
-        ///Navigation to orders. 
+        ///Navigation to vendor orders. 
         /// </summary>
         public ICollection<Order> VendorOrders { get; set; }
 
@@ -27,15 +27,5 @@ namespace HandiworkShop.DAL.Entities
         ///Navigation to user tags. 
         /// </summary>
         public ICollection<UserTag> UserTags { get; set; }
-
-        /// <summary>
-        ///Navigation to comments. 
-        /// </summary>
-        public ICollection<Comment> AuthorComments { get; set; }
-
-        /// <summary>
-        ///Navigation to comments. 
-        /// </summary>
-        public ICollection<Comment> ProfileComments { get; set; }
     }
 }

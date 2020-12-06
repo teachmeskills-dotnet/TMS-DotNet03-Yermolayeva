@@ -6,8 +6,31 @@
     <title>@ViewBag.Title</title>
 </head>
 <body>
-    <div>
+    <header>
+        <nav>
+            <div class="logo">
+                <a asp-controller="Home" asp-action="Index"><img class="logo__image" src="~/images/logo.png" alt="logo"></a>
+            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form method="get" asp-controller="Search" asp-action="SearchProfile">
+                    <button type="submit"><img class="search__image" src="~/images/search.png" alt="search"></button>
+                </form>
+
+                <form method="post" asp-controller="Account" asp-action="Logout">
+                    <button type="submit"><img class="logout__image" src="~/images/logout.png" alt="logout"></button>
+                </form>
+
+                <form method="get" asp-controller="Profile" asp-action="Index">
+                    <button type="submit"><img class="logout__image" src="~/images/account_circle.png" alt="profile"></button>
+                </form>
+            }
+        </nav>
+    </header>
+
+    <div class="wrapper">
         @RenderBody()
     </div>
+    @RenderSection("js", false)
 </body>
 </html>

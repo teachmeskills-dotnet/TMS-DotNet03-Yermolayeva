@@ -1,0 +1,56 @@
+﻿@model (List<HandiworkShop.Web.ViewModels.TagViewModel> AllTags, List<HandiworkShop.Web.ViewModels.OrderViewModel> Orders)
+
+@{
+    ViewData["Title"] = "Поиск заказов";
+}
+<form method="get" asp-controller="Search" asp-action="SearchOrder">
+
+    <input type="text" name="searchString">
+    <input type="submit" value="Найти">
+    @foreach (var tag in Model.AllTags)
+    {
+        <input type="checkbox" name="tagIds" value=@tag.Id>@tag.Name
+    }
+</form>
+
+<div class="orders">
+    @if (Model.Orders.Any())
+    {
+        @foreach (var order in Model.Orders)
+        {
+    <div class="order">
+        @if (order.ClientAvatar != null)
+        {
+            <img src="data:image/jpeg;base64,@(Convert.ToBase64String(order.ClientAvatar))">
+        }
+        else
+        {
+            <img src="~/images/account_circle.png">
+        }
+        <p class="title">@order.Title</p>
+        <p class="client">@order.ClientUserName</p>
+        <p class="price">@order.Price</p>
+        <p class="description">@order.Description</p>
+        <p class="end">@order.End</p>
+        <div class="tags">
+            @if (order.Tags.Any())
+            {
+                foreach (var tag in order.Tags)
+                {
+                    <div class="tag">
+                        <p>@tag.Name</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <h1>No tags(</h1>
+            }
+        </div>
+        <form method="post" asp-controller="Orders" asp-action="AcceptOrder" asp-route-orderId=@order.Id asp-route-returnUrl=@ViewContext.HttpContext.Request.Path>
+            <button type="submit">Принять заказ</button>
+        </form>
+    </div>
+            }
+        }
+    </div>

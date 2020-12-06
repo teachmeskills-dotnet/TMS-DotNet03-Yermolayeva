@@ -19,7 +19,7 @@ namespace HandiworkShop.BLL.Interfaces
         /// Get order by identifier.
         /// </summary>
         /// <param name="id">Identifier.</param>
-        /// <returns>Order data transfer objects.</returns>
+        /// <returns>Order data transfer object.</returns>
         System.Threading.Tasks.Task<OrderDto> GetOrderAsync(int id);
 
         /// <summary>
@@ -40,20 +40,67 @@ namespace HandiworkShop.BLL.Interfaces
         /// Delete order by identifier.
         /// </summary>
         /// <param name="id">Identifier.</param>
-        System.Threading.Tasks.Task DeleteAsync(int id);
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task DeleteAsync(int id, string userId);
 
         /// <summary>
         /// Update order by identifier.
         /// </summary>
-        /// <param name="orderDto">Task data transfer object.</param>
-        System.Threading.Tasks.Task UpdateOrderAsync(OrderDto orderDto);
+        /// <param name="orderDto">Order data transfer object.</param>
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task UpdateOrderAsync(OrderDto orderDto, string userId);
 
         /// <summary>
         /// Update order's status by identifier.
         /// </summary>
         /// <param name="id">Identifier.</param>
+        /// <param name="state">New state.</param>
+        /// <param name="userId">User identifier.</param>
+        /// <param name="vendorId">Vendor's user identifier.</param>
         /// <param name="state">State.</param>
-        /// <returns></returns>
-        System.Threading.Tasks.Task UpdateOrderStatusAsync(int id, StateType state);
+        System.Threading.Tasks.Task UpdateOrderStateAsync(int id, StateType state, string userId, string vendorId = null);
+
+        /// <summary>
+        /// Create comment for order by identifier.
+        /// </summary>
+        /// <param name="commentDto">Comment data transfer object.</param>
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task CreateOrderCommentAsync(CommentDto commentDto, string userId);
+
+        /// <summary>
+        /// Get order comment by order identifier.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="userId">User identifier.</param>
+        /// <returns>Comment data transfer object.</returns>
+        System.Threading.Tasks.Task<CommentDto> GetOrderCommentAsync(int id, string userId);
+
+        /// <summary>
+        /// Update comment for order by identifier.
+        /// </summary>
+        /// <param name="commentDto">Comment data transfer object.</param>
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task UpdateOrderCommentAsync(CommentDto commentDto, string userId);
+
+        /// <summary>
+        /// Delete order comment by identifier.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task DeleteOrderCommentAsync(int id, string userId);
+
+        /// <summary>
+        /// Get user's comments by user identifier.
+        /// </summary>
+        /// <param name="userId">User identifier.</param>
+        /// <returns>List of Comment data transfer objects.</returns>
+        System.Threading.Tasks.Task<IEnumerable<CommentDto>> GetUserCommentsAsync(string userId);
+
+        /// <summary>
+        /// Get orders by tags.
+        /// </summary>
+        /// <param name="tagIds">Tag identifiers.</param>
+        /// <returns>A collection of order data transfer objects.</returns>
+        System.Threading.Tasks.Task<IEnumerable<OrderDto>> GetOrdersByTagsAsync(IList<int> tagIds);
     }
 }

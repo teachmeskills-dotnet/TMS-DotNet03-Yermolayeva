@@ -21,13 +21,20 @@ namespace HandiworkShop.BLL.Managers
             _repositoryOrder = repositoryOrder ?? throw new ArgumentNullException(nameof(repositoryOrder));
         }
 
-        public async System.Threading.Tasks.Task CreateAsync(TaskDto taskDto)
+        public async System.Threading.Tasks.Task CreateAsync(TaskDto taskDto, string userId)
         {
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == taskDto.OrderId);
+            taskDto = taskDto ?? throw new ArgumentNullException(nameof(taskDto));
 
-            if(order is null || order.State != StateType.InProcess)
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == taskDto.OrderId && order.VendorId == userId);
+
+            if(order is null)
             {
-                return;
+                throw new KeyNotFoundException();
+            }
+
+            if (order.State != StateType.InProcess)
+            {
+                throw new Exception();
             }
 
             var task = new Task
@@ -40,25 +47,31 @@ namespace HandiworkShop.BLL.Managers
                 State = StateType.InProcess
             };
 
-        await _repositoryTask.CreateAsync(task);
-        await _repositoryTask.SaveChangesAsync();
+            await _repositoryTask.CreateAsync(task);
+            await _repositoryTask.SaveChangesAsync();
 
         }
 
-        public async System.Threading.Tasks.Task DeleteAsync(int id)
+        public async System.Threading.Tasks.Task DeleteAsync(int id, string userId)
         {
             var task = await _repositoryTask.GetEntityAsync(task => task.Id == id);
             if (task is null)
             {
-                return;
+                throw new KeyNotFoundException();
             }
 
             _repositoryTask.Delete(task);
             await _repositoryTask.SaveChangesAsync();
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<TaskDto>> GetOrderTasksAsync(int orderId)
+        public async System.Threading.Tasks.Task<IEnumerable<TaskDto>> GetOrderTasksAsync(int orderId, string userId)
         {
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == orderId && order.VendorId == userId);
+            if (order is null)
+            {
+                throw new KeyNotFoundException();
+            }
+
             var taskDtos = new List<TaskDto>();
             var tasks = await _repositoryTask
                 .GetAll()
@@ -66,33 +79,38 @@ namespace HandiworkShop.BLL.Managers
                 .Where(task => task.OrderId == orderId)
                 .ToListAsync();
 
-            if (!tasks.Any())
+            if (tasks.Any())
             {
-                return taskDtos;
-            }
-
-            foreach (var task in tasks)
-            {
-                taskDtos.Add(new TaskDto
+                foreach (var task in tasks)
                 {
-                    Id = task.Id,
-                    Title = task.Title,
-                    Description = task.Description,
-                    Start = task.Start,
-                    End = task.End,
-                    State = task.State,
-                    OrderId = task.OrderId
-                });
+                    taskDtos.Add(new TaskDto
+                    {
+                        Id = task.Id,
+                        Title = task.Title,
+                        Description = task.Description,
+                        Start = task.Start,
+                        End = task.End,
+                        State = task.State,
+                        OrderId = task.OrderId                      
+                    });
+                }
             }
+            
             return taskDtos;
         }
 
-        public async System.Threading.Tasks.Task<TaskDto> GetTaskAsync(int id)
+        public async System.Threading.Tasks.Task<TaskDto> GetTaskAsync(int id, string userId)
         {
             var task = await _repositoryTask.GetEntityAsync(task => task.Id == id);
             if (task is null)
             {
-                return null;
+                throw new KeyNotFoundException();
+            }
+
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
+            if (order is null)
+            {
+                throw new KeyNotFoundException();
             }
 
             var taskDto = new TaskDto
@@ -113,7 +131,7 @@ namespace HandiworkShop.BLL.Managers
             var orders = await _repositoryOrder
                 .GetAll()
                 .AsNoTracking()
-                .Where(order => order.VendorId == userId)
+                .Where(order => order.VendorId == userId && order.State == StateType.InProcess)
                 .Select(order => order.Id)
                 .ToListAsync();
 
@@ -122,36 +140,42 @@ namespace HandiworkShop.BLL.Managers
             var tasks = await _repositoryTask
                 .GetAll()
                 .AsNoTracking()
-                .Where(task => orders.Contains(task.OrderId))
+                .Where(task => orders.Contains(task.OrderId) && date >= task.Start && date <= task.End)
                 .ToListAsync();
 
-            if (!tasks.Any())
+            if (tasks.Any())
             {
-                return taskDtos;
-            }
-
-            foreach (var task in tasks)
-            {
-                taskDtos.Add(new TaskDto
+                foreach (var task in tasks)
                 {
-                    Id = task.Id,
-                    Title = task.Title,
-                    Description = task.Description,
-                    Start = task.Start,
-                    End = task.End,
-                    State = task.State,
-                    OrderId = task.OrderId
-                });
+                    taskDtos.Add(new TaskDto
+                    {
+                        Id = task.Id,
+                        Title = task.Title,
+                        Description = task.Description,
+                        Start = task.Start,
+                        End = task.End,
+                        State = task.State,
+                        OrderId = task.OrderId
+                    });
+                }
             }
+            
             return taskDtos;
         }
 
-        public async System.Threading.Tasks.Task UpdateTaskAsync(TaskDto taskDto)
+        public async System.Threading.Tasks.Task UpdateTaskAsync(TaskDto taskDto, string userId)
         {
-            var task = await _repositoryTask.GetEntityAsync(task => task.Id == taskDto.Id && task.OrderId == taskDto.OrderId);
+            taskDto = taskDto ?? throw new ArgumentNullException(nameof(taskDto));
+            var task = await _repositoryTask.GetEntityAsync(task => task.Id == taskDto.Id);
             if (task is null)
             {
-                return;
+                throw new KeyNotFoundException();
+            }
+
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
+            if (order is null)
+            {
+                throw new KeyNotFoundException();
             }
 
             static bool ValidateToUpdate(Task task, TaskDto taskDto)
@@ -190,6 +214,32 @@ namespace HandiworkShop.BLL.Managers
             {
                 await _repositoryTask.SaveChangesAsync();
             }
+        }
+
+        public async System.Threading.Tasks.Task UpdateTaskStateAsync(int id, string userId)
+        {
+            var task = await _repositoryTask.GetEntityAsync(task => task.Id == id);
+            if (task is null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
+            if (order is null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            if (task.State == StateType.InProcess)
+            {
+                task.State = StateType.Completed;
+            }
+            else
+            {
+                task.State = StateType.InProcess;
+            }
+
+            await _repositoryTask.SaveChangesAsync();
         }
     }
 }

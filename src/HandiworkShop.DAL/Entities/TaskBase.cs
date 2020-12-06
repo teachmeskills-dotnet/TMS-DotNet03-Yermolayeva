@@ -1,12 +1,11 @@
 ﻿using HandiworkShop.Common.Enums;
-using HandiworkShop.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace HandiworkShop.DAL.Entities
 {
-    public class TaskBase : IHasDbIdentity
+    public class TaskBase 
     {
         public int Id { get; set; }
 

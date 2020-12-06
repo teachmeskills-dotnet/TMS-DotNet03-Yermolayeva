@@ -15,7 +15,7 @@ namespace HandiworkShop.DAL.Entities
         /// </summary>
         public Tag Tag { get; set; }
 
-        public string OrderId { get; set; }
+        public int OrderId { get; set; }
 
         /// <summary>
         /// Navigation to order.

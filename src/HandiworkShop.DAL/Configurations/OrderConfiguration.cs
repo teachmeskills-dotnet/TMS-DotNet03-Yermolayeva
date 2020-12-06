@@ -27,9 +27,13 @@ namespace HandiworkShop.DAL.Configurations
                 .HasMaxLength(ConfigurationConstants.StandartLenghtForStringField);
 
             builder.Property(o => o.Start)
+                .IsRequired()
                 .HasColumnType(ConfigurationConstants.DateFormat);
 
             builder.Property(o => o.End)
+                .HasColumnType(ConfigurationConstants.DateFormat);
+
+            builder.Property(o => o.CommentCreated)
                 .HasColumnType(ConfigurationConstants.DateFormat);
 
             builder.HasOne(o => o.Vendor)

@@ -14,35 +14,32 @@ namespace HandiworkShop.BLL.Managers
     {
         private readonly IRepository<Tag> _repositoryTag;
         private readonly IRepository<UserTag> _repositoryUserTag;
+        private readonly IRepository<OrderTag> _repositoryOrderTag;
+        private readonly IRepository<Order> _repositoryOrder;
 
-        public TagManager(IRepository<Tag> repositoryTag, IRepository<UserTag> repositoryUserTag)
+        public TagManager(
+            IRepository<Tag> repositoryTag, 
+            IRepository<UserTag> repositoryUserTag, 
+            IRepository<OrderTag> repositoryOrderTag,
+            IRepository<Order> repositoryOrder)
         {
             _repositoryTag = repositoryTag ?? throw new ArgumentNullException(nameof(repositoryTag));
             _repositoryUserTag = repositoryUserTag ?? throw new ArgumentNullException(nameof(repositoryUserTag));
+            _repositoryOrderTag = repositoryOrderTag ?? throw new ArgumentNullException(nameof(repositoryOrderTag));
+            _repositoryOrder = repositoryOrder ?? throw new ArgumentNullException(nameof(repositoryOrder));
         }
 
-        public async System.Threading.Tasks.Task AddUserTagAsync(int id, string userId)
+        public async System.Threading.Tasks.Task CreateAsync(TagDto tagDto)
         {
-            var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == id);
+            tagDto = tagDto ?? throw new ArgumentNullException(nameof(tagDto));
 
-            if (tag is null)
+            var tag = new Tag
             {
-                return;
-            }
-
-            var userTag = new UserTag
-            {
-                TagId = id,
-                UserId = userId
+                Name = tagDto.Name
             };
 
-            await _repositoryUserTag.CreateAsync(userTag);
-            await _repositoryUserTag.SaveChangesAsync();
-        }
-
-        public System.Threading.Tasks.Task CreateAsync(TagDto tagDto)
-        {
-            throw new NotImplementedException();
+            await _repositoryTag.CreateAsync(tag);
+            await _repositoryTag.SaveChangesAsync();
         }
 
         public async System.Threading.Tasks.Task DeleteAsync(int id)
@@ -50,23 +47,11 @@ namespace HandiworkShop.BLL.Managers
             var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == id);
             if (tag is null)
             {
-                return;
+                throw new KeyNotFoundException();
             }
 
             _repositoryTag.Delete(tag);
             await _repositoryTag.SaveChangesAsync();
-        }
-
-        public async System.Threading.Tasks.Task DeleteUserTagAsync(int id, string userId)
-        {
-            var userTag = new UserTag
-            {
-                TagId = id,
-                UserId = userId
-            };
-
-            _repositoryUserTag.Delete(userTag);
-            await _repositoryUserTag.SaveChangesAsync();
         }
 
         public async Task<TagDto> GetTagAsync(int id)
@@ -74,7 +59,7 @@ namespace HandiworkShop.BLL.Managers
             var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == id);
             if (tag is null)
             {
-                return null;
+                throw new KeyNotFoundException();
             }
 
             var tagDto = new TagDto
@@ -85,7 +70,7 @@ namespace HandiworkShop.BLL.Managers
             return tagDto;
         }
 
-        public async Task<IEnumerable<TagDto>> GetTagsAsync(string userId)
+        public async Task<IEnumerable<TagDto>> GetUserTagsAsync(string userId)
         {
             var tagDtos = new List<TagDto>();
 
@@ -93,7 +78,7 @@ namespace HandiworkShop.BLL.Managers
                 .GetAll()
                 .AsNoTracking()
                 .Where(userTag => userTag.UserId == userId)
-                .Select(useTag => useTag.TagId)
+                .Select(userTag => userTag.TagId)
                 .ToListAsync();
 
             var tags = await _repositoryTag
@@ -102,29 +87,60 @@ namespace HandiworkShop.BLL.Managers
                 .Where(tag => tagIds.Contains(tag.Id))
                 .ToListAsync();
 
-            if (!tags.Any())
+            if (tags.Any())
             {
-                return null;
-            }
-
-            foreach (var tag in tags)
-            {
-                tagDtos.Add(new TagDto
+                foreach (var tag in tags)
                 {
-                   Id = tag.Id,
-                   Name = tag.Name
-                });
+                    tagDtos.Add(new TagDto
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
             }
+            return tagDtos;
+        }
+
+        public async Task<IEnumerable<TagDto>> GetOrderTagsAsync(int orderId)
+        {
+            var tagDtos = new List<TagDto>();
+
+            var tagIds = await _repositoryOrderTag
+                .GetAll()
+                .AsNoTracking()
+                .Where(orderTag => orderTag.OrderId == orderId)
+                .Select(orderTag => orderTag.TagId)
+                .ToListAsync();
+
+            var tags = await _repositoryTag
+                .GetAll()
+                .AsNoTracking()
+                .Where(tag => tagIds.Contains(tag.Id))
+                .ToListAsync();
+
+            if (tags.Any())
+            {
+                foreach (var tag in tags)
+                {
+                    tagDtos.Add(new TagDto
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
+            }        
 
             return tagDtos;
         }
 
         public async System.Threading.Tasks.Task UpdateTagAsync(TagDto tagDto)
         {
+            tagDto = tagDto ?? throw new ArgumentNullException(nameof(tagDto));
+
             var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == tagDto.Id);
             if (tag is null)
             {
-                return;
+                throw new KeyNotFoundException();
             }
 
             static bool ValidateToUpdate(Tag tag, TagDto tagDto)
@@ -145,6 +161,98 @@ namespace HandiworkShop.BLL.Managers
             {
                 await _repositoryTag.SaveChangesAsync();
             }
+        }
+
+        public async System.Threading.Tasks.Task UpdateUserTagsAsync(string userId, IList<int> tagIds)
+        {
+            var userTags = await _repositoryUserTag
+                .GetAll()
+                .AsNoTracking()
+                .Where(userTag => userTag.UserId == userId)
+                .ToListAsync();
+
+            if (userTags.Any())
+            {
+                foreach (var tag in userTags)
+                {
+                    _repositoryUserTag.Delete(tag);
+                }
+            }
+
+            if (tagIds.Any())
+            {
+                foreach (var tagId in tagIds)
+                {
+                    await _repositoryUserTag.CreateAsync(new UserTag()
+                    {
+                        TagId = tagId,
+                        UserId = userId
+                    });
+                }
+            }
+
+            await _repositoryUserTag.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateOrderTagsAsync(int orderId, IList<int> tagIds, string userId)
+        {
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == orderId && order.ClientId == userId);
+
+            if (order is null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            var orderTags = await _repositoryOrderTag
+               .GetAll()
+               .AsNoTracking()
+               .Where(orderTag => orderTag.OrderId == orderId)
+               .ToListAsync();
+
+            if (orderTags.Any())
+            {
+                foreach (var tag in orderTags)
+                {
+                    _repositoryOrderTag.Delete(tag);
+                }
+            }
+
+            if (tagIds.Any())
+            {
+                foreach (var tagId in tagIds)
+                {
+                    await _repositoryOrderTag.CreateAsync(new OrderTag()
+                    {
+                        OrderId = orderId,
+                        TagId = tagId
+                    });
+                }
+            }
+
+            await _repositoryOrderTag.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<TagDto>> GetAllTagsAsync()
+        {
+            var tagDtos = new List<TagDto>();
+            var tags = await _repositoryTag
+                .GetAll()
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (tags.Any())
+            {
+                foreach (var tag in tags)
+                {
+                    tagDtos.Add(new TagDto
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
+            }
+
+            return tagDtos;
         }
     }
 }

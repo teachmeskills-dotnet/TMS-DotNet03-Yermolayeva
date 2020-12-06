@@ -20,6 +20,9 @@ namespace HandiworkShop.DAL.Configurations
                 .IsRequired()
                 .HasMaxLength(ConfigurationConstants.StandartLenghtForStringField);
 
+            builder.Property(p => p.Avatar)
+                .HasColumnType(ConfigurationConstants.AvatarFormat);
+
             builder.Property(p => p.Created)
                 .IsRequired()
                 .HasColumnType(ConfigurationConstants.DateFormat);

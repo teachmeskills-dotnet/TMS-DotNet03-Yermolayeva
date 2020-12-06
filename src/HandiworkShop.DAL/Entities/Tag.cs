@@ -1,11 +1,10 @@
-﻿using HandiworkShop.Common.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace HandiworkShop.DAL.Entities
 {
-    public class Tag : IHasDbIdentity
+    public class Tag 
     {
         public int Id { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿using HandiworkShop.BLL.Interfaces;
 using HandiworkShop.BLL.Models;
 using HandiworkShop.DAL.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -13,17 +14,23 @@ namespace HandiworkShop.BLL.Managers
 {
     public class ProfileManager : IProfileManager
     {
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRepository<Profile> _repositoryProfile;
         private readonly IRepository<UserTag> _repositoryUserTag;
 
-        public ProfileManager(IRepository<Profile> repositoryProfile, IRepository<UserTag> repositoryUserTag)
+        public ProfileManager(UserManager<ApplicationUser> userManager, 
+            IRepository<Profile> repositoryProfile, 
+            IRepository<UserTag> repositoryUserTag)
         {
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _repositoryProfile = repositoryProfile ?? throw new ArgumentNullException(nameof(repositoryProfile));
             _repositoryUserTag = repositoryUserTag ?? throw new ArgumentNullException(nameof(repositoryUserTag));
         }
 
         public async System.Threading.Tasks.Task CreateAsync(ProfileDto profileDto)
         {
+            profileDto = profileDto ?? throw new ArgumentNullException(nameof(profileDto));
+
             var profile = new Profile
             {
                 UserId = profileDto.UserId,
@@ -35,6 +42,19 @@ namespace HandiworkShop.BLL.Managers
 
             await _repositoryProfile.CreateAsync(profile);
             await _repositoryProfile.SaveChangesAsync();
+
+            if (profileDto.TagIds.Any())
+            {
+                foreach (var tagId in profileDto.TagIds)
+                {
+                    await _repositoryUserTag.CreateAsync(new UserTag()
+                    {
+                        UserId = profileDto.UserId,
+                        TagId = tagId
+                    });
+                }
+                await _repositoryUserTag.SaveChangesAsync();
+            }
         }
 
         public async System.Threading.Tasks.Task DeleteAsync(int id, string userId)
@@ -42,49 +62,19 @@ namespace HandiworkShop.BLL.Managers
             var profile = await _repositoryProfile.GetEntityAsync(profile => profile.Id == id && profile.UserId == userId);
             if (profile is null)
             {
-                return;
+                throw new KeyNotFoundException();
             }
 
             _repositoryProfile.Delete(profile);
             await _repositoryProfile.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ProfileDto>> GetAllVendorProfilesAsync()
+        public async Task<ProfileDto> GetProfileAsync(string userId)
         {
-            var profileDtos = new List<ProfileDto>();
-            var profiles = await _repositoryProfile
-                .GetAll()
-                .AsNoTracking()
-                .Where(profile => profile.IsVendor)
-                .ToListAsync();
-
-            if (!profiles.Any())
-            {
-                return profileDtos;
-            }
-
-            foreach (var profile in profiles)
-            {
-                profileDtos.Add(new ProfileDto
-                {
-                    Id = profile.Id,
-                    UserId = profile.UserId,
-                    Created = profile.Created,
-                    IsVendor = profile.IsVendor,
-                    Info = profile.Info,
-                    Name = profile.Name
-                });
-            }
-
-            return profileDtos;
-        }
-
-        public async Task<ProfileDto> GetProfileAsync(int id, string userId)
-        {
-            var profile = await _repositoryProfile.GetEntityAsync(profile => profile.Id == id && profile.UserId == userId);
+            var profile = await _repositoryProfile.GetEntityAsync(profile => profile.UserId == userId);
             if (profile is null)
             {
-                return null;
+                throw new KeyNotFoundException();
             }
 
             var profileDto = new ProfileDto
@@ -94,64 +84,72 @@ namespace HandiworkShop.BLL.Managers
                 Created = profile.Created,
                 IsVendor = profile.IsVendor,
                 Info = profile.Info,
-                Name = profile.Name
+                Name = profile.Name,
+                Avatar = profile.Avatar
             };
             return profileDto;
         }
 
-        public async Task<IEnumerable<ProfileDto>> GetProfilesByTagsAsync(IList<TagDto> tags)
+        public async Task<IEnumerable<ProfileDto>> GetProfilesByTagsAsync(IList<int> tagIds)
         {
             var profileDtos = new List<ProfileDto>();
+            var profiles = new List<Profile>();
 
-            var ids = await _repositoryUserTag
-                .GetAll()
-                .AsNoTracking()
-                .Where(userTag => userTag.TagId == tags[0].Id)
-                .Select(userTag => userTag.UserId)
-                .ToListAsync();
-
-            for (int i = 1; i < tags.Count; i++)
+            if (tagIds != null && tagIds.Any())
             {
-                ids = await _repositoryUserTag
-                .GetAll()
-                .AsNoTracking()
-                .Where(userTag => userTag.TagId == tags[i].Id && ids.Contains(userTag.UserId))
-                .Select(userTag => userTag.UserId)
-                .ToListAsync();
+                var userIds = await _repositoryUserTag
+                    .GetAll()
+                    .AsNoTracking()
+                    .Where(userTag => tagIds.Contains(userTag.TagId))
+                    .Select(userTag => userTag.UserId)
+                    .ToListAsync();
+
+                userIds = userIds.GroupBy(id => id).Where(group => group.Count() == tagIds.Count()).Select(group => group.First()).ToList() ;
+
+                profiles = await _repositoryProfile
+                    .GetAll()
+                    .AsNoTracking()
+                    .Where(profile => userIds.Contains(profile.UserId) && profile.IsVendor)
+                    .ToListAsync();           
             }
-            var profiles = await _repositoryProfile
-                .GetAll()
-                .AsNoTracking()
-                .Where(profile => ids.Contains(profile.UserId))
-                .ToListAsync();
-
-            if (!profiles.Any())
+            else
             {
-                return profileDtos;
+                profiles = await _repositoryProfile
+                    .GetAll()
+                    .AsNoTracking()
+                    .Where(profile => profile.IsVendor)
+                    .ToListAsync();
             }
 
-            foreach (var profile in profiles)
+            if (profiles.Any())
             {
-                profileDtos.Add(new ProfileDto
+                foreach (var profile in profiles)
                 {
-                    Id = profile.Id,
-                    UserId = profile.UserId,
-                    Created = profile.Created,
-                    IsVendor = profile.IsVendor,
-                    Info = profile.Info,
-                    Name = profile.Name
-                });
+                    profileDtos.Add(new ProfileDto
+                    {
+                        Id = profile.Id,
+                        UserId = profile.UserId,
+                        Created = profile.Created,
+                        IsVendor = profile.IsVendor,
+                        Info = profile.Info,
+                        Name = profile.Name,
+                        Avatar = profile.Avatar
+                    });
+                }
             }
-
+            
             return profileDtos;
         }
 
-        public async System.Threading.Tasks.Task UpdateProfileAsync(ProfileDto profileDto)
+        public async System.Threading.Tasks.Task UpdateProfileAsync(ProfileDto profileDto, string userId)
         {
-            var profile = await _repositoryProfile.GetEntityAsync(profile => profile.Id == profileDto.Id && profile.UserId == profileDto.UserId);
+            profileDto = profileDto ?? throw new ArgumentNullException(nameof(profileDto));
+
+            var profile = await _repositoryProfile.GetEntityAsync(profile => profile.Id == profileDto.Id && profile.UserId == userId);
+
             if (profile is null)
             {
-                return;
+                throw new KeyNotFoundException();
             }
 
             static bool ValidateToUpdate(Profile profile, ProfileDto profileDto)
@@ -170,12 +168,11 @@ namespace HandiworkShop.BLL.Managers
                     updated = true;
                 }
 
-                if (profile.IsVendor != profileDto.IsVendor)
+                if (profile.Avatar != profileDto.Avatar && profileDto.Avatar != null)
                 {
-                    profile.IsVendor = profileDto.IsVendor;
+                    profile.Avatar = profileDto.Avatar;
                     updated = true;
                 }
-
                 return updated;
             }
 
@@ -184,6 +181,29 @@ namespace HandiworkShop.BLL.Managers
             {
                 await _repositoryProfile.SaveChangesAsync();
             }
+        }
+
+        public async System.Threading.Tasks.Task SwitchProfileStatusAsync(string userId)
+        {
+            var profile = await _repositoryProfile.GetEntityAsync(profile => profile.UserId == userId);
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (profile is null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            profile.IsVendor = !profile.IsVendor;
+
+            if (await _userManager.IsInRoleAsync(user, "Vendor"))
+            {
+                await _userManager.RemoveFromRoleAsync(user, "Vendor");
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(user, "Vendor");
+            }
+            await _repositoryProfile.SaveChangesAsync();
         }
     }
 }

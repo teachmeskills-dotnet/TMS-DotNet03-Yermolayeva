@@ -1,5 +1,64 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model HandiworkShop.Web.ViewModels.ProfileViewModel
+
 @{
+    ViewData["Title"] = @Model.Name;
 }
+
+<div class="profile">
+    <div class="info">
+        <div class="avatar">
+            @if (Model.Avatar != null)
+            {
+                <img src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Avatar))">
+            }
+            else
+            {
+                <img src="~/images/account_circle.png">
+            }
+        </div>
+        @if (Model.IsVendor && Model.UserName != User.Identity.Name)
+        {<form method="get" asp-controller="Orders" asp-action="NewOrder">
+                <button type="submit">Сделать заказ<img class="search__image" src="~/images/search.png" alt="search"></button>
+            </form>
+        }
+        <p class="name">@Model.Name</p>
+        <p class="username">@Model.UserName</p>
+        <p class="info">@Model.Info</p>
+        <p class="created">@Model.Created.ToShortDateString()</p>
+    </div>
+    <div class="tags">
+
+        @if (Model.Tags.Any())
+        {
+            foreach (var tag in Model.Tags)
+            {
+                <div class="tag">
+                    <p>@tag.Name</p>
+                </div>
+            }
+        }
+        else
+        {
+            <h1>No tags(</h1>
+        }
+    </div>
+</div>
+
+<div class="comments">
+
+    @if (Model.Comments.Any())
+    {
+        foreach (var comment in Model.Comments)
+        {
+    <div class="comment">
+        <div class="author">@comment.AuthorName @comment.Created</div>
+        <div class="text">@comment.Text</div>
+        <div class="rating">@comment.Rating</div>
+    </div>
+        }
+    }
+    else
+    {
+        <h1>No comments(</h1>
+    }
+</div>

@@ -1,5 +1,4 @@
-﻿using HandiworkShop.Common.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -22,8 +21,20 @@ namespace HandiworkShop.DAL.Entities
         /// </summary>
         public ApplicationUser Vendor { get; set; }
 
+        public string CommentText { get; set; }
+
+        public int? CommentRating { get; set; }
+
+        public DateTime? CommentCreated { get; set; }
+
+        /// <summary>
+        /// Navigation to tasks.
+        /// </summary>
         public ICollection<Task> Tasks { get; set; }
 
+        /// <summary>
+        /// Navigation to order tags.
+        /// </summary>
         public ICollection<OrderTag> OrderTags { get; set; }
 
     }

@@ -25,11 +25,6 @@ namespace HandiworkShop.Common.Constants
         public const string TaskTable = "Tasks";
 
         /// <summary>
-        /// Comment table.
-        /// </summary>
-        public const string CommentTable = "Comments";
-
-        /// <summary>
         /// Tag table.
         /// </summary>
         public const string TagTable = "Tags";

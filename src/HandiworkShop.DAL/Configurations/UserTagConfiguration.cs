@@ -23,13 +23,11 @@ namespace HandiworkShop.DAL.Configurations
 
             builder.HasOne(u => u.User)
                 .WithMany(i => i.UserTags)
-                .HasForeignKey(u => u.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(u => u.UserId);
 
             builder.HasOne(u => u.Tag)
                 .WithMany(t => t.UserTags)
-                .HasForeignKey(u => u.TagId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(u => u.TagId);
         }
     }
 }

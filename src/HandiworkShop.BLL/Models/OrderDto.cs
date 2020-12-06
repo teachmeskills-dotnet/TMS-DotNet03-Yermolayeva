@@ -22,7 +22,10 @@ namespace HandiworkShop.BLL.Models
         public decimal Price { get; set; }
 
         public string ClientId { get; set; }
-
         public string VendorId { get; set; }
+
+        public IList<int> TagIds { get; set; }
+
+        public CommentDto Comment { get; set; }
     }
 }

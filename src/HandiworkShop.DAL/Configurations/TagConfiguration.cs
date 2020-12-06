@@ -18,7 +18,6 @@ namespace HandiworkShop.DAL.Configurations
             builder.Property(t => t.Name)
                 .IsRequired()
                 .HasMaxLength(ConfigurationConstants.ShortLenghtForStringField);
-
         }
     }
 }

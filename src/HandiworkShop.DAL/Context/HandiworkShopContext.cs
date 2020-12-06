@@ -47,10 +47,6 @@ namespace HandiworkShop.DAL.Context
         /// </summary>
         public DbSet<OrderTag> OrderTags { get; set; }
 
-        /// <summary>
-        /// Comments.
-        /// </summary>
-        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,7 +58,6 @@ namespace HandiworkShop.DAL.Context
             modelBuilder.ApplyConfiguration(new TagConfiguration());
             modelBuilder.ApplyConfiguration(new UserTagConfiguration());
             modelBuilder.ApplyConfiguration(new OrderTagConfiguration());
-            modelBuilder.ApplyConfiguration(new CommentConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

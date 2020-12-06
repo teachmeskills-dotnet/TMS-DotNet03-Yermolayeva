@@ -1,0 +1,49 @@
+﻿@model HandiworkShop.Web.ViewModels.SettingsViewModel
+
+@{ ViewData["Title"] = "Настройки"; }
+
+<form method="post" asp-action="Settings" asp-controller="Account">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name">
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div>
+        <label asp-for="Info"></label>
+        <input asp-for="Info">
+    </div>
+    <div>
+        <label asp-for="IsVendor"></label>
+        <input asp-for="IsVendor">
+    </div>
+    <div>
+        @if (Model.AllTags.Any())
+        {
+        @foreach (var tag in Model.AllTags)
+        
+            @if (Model.TagIds.Contains(tag.Id))
+            {
+                <div>
+                    <label>@tag.Name</label>
+                    <input type = "checkbox" name="TagIds" value=@tag.Id checked>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <label>@tag.Name</label>
+                    <input type="checkbox"name="TagIds" value=@tag.Id>
+                </div>
+            }
+            }
+        }
+    </div>
+    <div>
+        <input type="hidden" value="@Model.Id" name="Id">
+        <input type="hidden" value="@Model.UserId" name="UserId">
+    </div>
+    <div>
+        <input type="submit" value="Сохранить">
+    </div>
+</form>

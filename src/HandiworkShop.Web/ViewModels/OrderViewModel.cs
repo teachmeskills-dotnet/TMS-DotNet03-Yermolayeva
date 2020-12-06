@@ -7,45 +7,39 @@ using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.ViewModels
 {
-    [OrderValidation]
     public class OrderViewModel
     {
         public int Id { get; set; }
 
-        [Required]
-        [Display(Name = "Название")]
         public string Title { get; set; }
 
-        [Display(Name = "Описание")]
-        [DataType(DataType.MultilineText)]
         public string Description { get; set; }
+
+        public string ClientUserName { get; set; }
+
+        public byte[] ClientAvatar { get; set; }
 
         public string ClientId { get; set; }
 
-        [DataType(DataType.Date)]
+        public string VendorUserName { get; set; }
+
+        public byte[] VendorAvatar { get; set; }
+
+        public string VendorId { get; set; }
+
         public DateTime Start { get; set; }
 
-        [DataType(DataType.Date)]
         public DateTime? End { get; set; }
 
         public StateType State { get; set; }
 
-        [Required]
-        [DataType(DataType.Currency)]
         public decimal Price { get; set; }
-    }
 
-    class OrderValidationAttribute : ValidationAttribute
-    {
-        public override bool IsValid(object value)
-        {
-            OrderViewModel order = value as OrderViewModel;
-            if (!(order.End is null) && order.End <= DateTime.Now.Date)
-            {
-                this.ErrorMessage = "Некорректная дата окончания.";
-                return false;
-            }
-            return true;
-        }
+        public bool HasComment { get; set; }
+
+        public IEnumerable<TaskViewModel> Tasks { get; set; }
+
+        public IEnumerable<TagViewModel> Tags { get; set; }
+
     }
 }

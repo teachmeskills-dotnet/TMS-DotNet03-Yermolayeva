@@ -1,0 +1,45 @@
+﻿@model HandiworkShop.Web.ViewModels.OrderEditViewModel
+
+@{ ViewData["Title"] = "Новый заказ"; }
+
+<form method="post" asp-action="CreateOrder" asp-controller="Orders">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="Title"></label>
+        <input asp-for="Title">
+        <span asp-validation-for="Title"></span>
+    </div>
+    <div>
+        <label asp-for="Description"></label>
+        <input asp-for="Description">
+    </div>
+    <div>
+        <label asp-for="End"></label>
+        <input asp-for="End">
+        <span asp-validation-for="End"></span>
+    </div>
+    <div>
+        <label asp-for="Price"></label>
+        <input asp-for="Price">
+        <span asp-validation-for="Price"></span>
+    </div>
+    <div>
+        @if (Model.AllTags.Any())
+        {
+            @foreach (var tag in Model.AllTags)
+            {
+                <div>
+                    <label>@tag.Name</label>
+                    <input type="checkbox" name="TagIds" value=@tag.Id>
+                </div>
+            }
+        }
+    </div>s
+    <div>
+        <input type="hidden" value="@Model.ClientId" name="ClientId">
+        <input type="hidden" value="@Model.VendorId" name="VendorId">
+    </div>
+    <div>
+        <input type="submit" value="Создать">
+    </div>
+</form>

@@ -25,13 +25,11 @@ namespace HandiworkShop.DAL.Configurations
 
             builder.HasOne(o => o.Order)
                 .WithMany(i => i.OrderTags)
-                .HasForeignKey(o => o.OrderId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(o => o.OrderId);
 
             builder.HasOne(o => o.Tag)
                 .WithMany(t => t.OrderTags)
-                .HasForeignKey(u => u.TagId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(u => u.TagId);
         }
     }
 }

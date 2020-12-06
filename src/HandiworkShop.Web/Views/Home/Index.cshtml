@@ -3,13 +3,12 @@
 }
 @if (User.Identity.IsAuthenticated)
 {
-    <p>@User.Identity.Name</p>
-    <form method="post" asp-controller="Account" asp-action="LogOut">
-        <input type="submit" value="Выйти">
-    </form>
+    <h1>Добро пожаловать!</h1>
 }
 else
 {
-    <a asp-controller="Account" asp-action="SignUp">Sign Up</a>
-    <a asp-controller="Account" asp-action="SignIn">Sign In</a>
+<div class="enter">
+    <a class="signin" asp-controller="Account" asp-action="SignIn">Войти</a>
+    <a class ="signup" asp-controller="Account" asp-action="SignUp">Регистрация</a>
+</div>
 }

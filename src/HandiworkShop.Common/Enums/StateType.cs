@@ -27,11 +27,21 @@ namespace HandiworkShop.Common.Enums
         /// <summary>
         /// Canceled.
         /// </summary>
-        Canceled = 3,
+        CanceledByClient = 3,
 
         /// <summary>
-        /// Awaiting confirmation.
+        /// Canceled.
         /// </summary>
-        AwaitingConfirm = 4
+        CanceledByVendor = 4,
+
+        /// <summary>
+        /// Awaiting confirm.
+        /// </summary>
+        AwaitingConfirm = 5,
+
+        /// <summary>
+        /// Awaiting vendor.
+        /// </summary>
+        AwaitingVendor = 6
     }
 }

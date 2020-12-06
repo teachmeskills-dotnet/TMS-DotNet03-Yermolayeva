@@ -1,0 +1,77 @@
+﻿@model List<HandiworkShop.Web.ViewModels.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Исходящие заказы";
+}
+<div>
+@foreach (var order in Model)
+{
+    <div>
+        <p>@order.Title</p>
+        <p>@order.Description</p>
+        <p>@order.Price</p>
+        <p>@order.End</p>
+        @if (order.Tags.Any())
+        {
+            @foreach (var tag in order.Tags)
+            {
+                <div>@tag.Name</div>
+            }
+        }
+        @switch (order.State)
+        {
+            case HandiworkShop.Common.Enums.StateType.InProcess:
+                <form method="post" asp-controller="Orders" asp-action="CancelOrder">
+                    <button type="submit">Отменить заказ</button>
+                </form>
+                break;
+            case HandiworkShop.Common.Enums.StateType.CanceledByClient:
+                <form method="post" asp-controller="Orders" asp-action="DeleteOrder">
+                    <button type="submit">Удалить заказ</button>
+                </form>
+                break;
+            case HandiworkShop.Common.Enums.StateType.CanceledByVendor:
+                <form method="post" asp-controller="Orders" asp-action="DeleteOrder">
+                    <button type="submit" name="orderId" value=@order.Id>Удалить заказ</button>
+                </form>
+                break;
+            case HandiworkShop.Common.Enums.StateType.AwaitingConfirm:
+                <form method="post" asp-controller="Orders" asp-action="CancelOrder">
+                    <button type="submit" name="orderId" value=@order.Id>Отменить заказ</button>
+                </form>
+                <form method="get" asp-controller="Orders" asp-action="EditOrder">
+                    <button type="submit" name="orderId" value=@order.Id>Изменить заказ</button>
+                </form>
+                break;
+            case HandiworkShop.Common.Enums.StateType.AwaitingVendor:
+                <form method="post" asp-controller="Orders" asp-action="CancelOrder">
+                    <button type="submit" name="orderId" value=@order.Id>Отменить заказ</button>
+                </form>
+                <form method="get" asp-controller="Orders" asp-action="EditOrder">
+                    <button type="submit" name="orderId" value=@order.Id>Изменить заказ</button>
+                </form>
+                break;
+            case HandiworkShop.Common.Enums.StateType.Completed:
+                if (order.HasComment)
+                {
+                    <form method="post" asp-controller="Orders" asp-action="DeleteComment">
+                        <button type="submit" name="orderId" value=@order.Id>Удалить комментарий</button>
+                    </form>
+                    <form method="get" asp-controller="Orders" asp-action="EditComment">
+                        <button type="submit" name="orderId" value=@order.Id>Изменить комментарий</button>
+                    </form>
+                }
+                else
+                {
+                    <form method="get" asp-controller="Orders" asp-action="CreateComment">
+                        <button type="submit" name="orderId" value=@order.Id>Добавить комментарий</button>
+                    </form>
+                }
+                break;
+        }
+    </div>
+}
+</div>
+<form method="get" asp-controller="Orders" asp-action="CreateOrder">
+    <button type="submit">Новый заказ</button>
+</form>

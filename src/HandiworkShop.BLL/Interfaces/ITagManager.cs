@@ -25,7 +25,20 @@ namespace HandiworkShop.BLL.Interfaces
         /// </summary>
         /// <param name="userId">User identifier.</param>
         /// <returns>List of Tag data transfer objects.</returns>
-        System.Threading.Tasks.Task<IEnumerable<TagDto>> GetTagsAsync(string userId);
+        System.Threading.Tasks.Task<IEnumerable<TagDto>> GetUserTagsAsync(string userId);
+
+        /// <summary>
+        /// Get all tags.
+        /// </summary>
+        /// <returns>List of Tag data transfer objects.</returns>
+        System.Threading.Tasks.Task<IEnumerable<TagDto>> GetAllTagsAsync();
+
+        /// <summary>
+        /// Get order's tags by user identifier.
+        /// </summary>
+        /// <param name="orderId">Order identifier.</param>
+        /// <returns>List of Tag data transfer objects.</returns>
+        System.Threading.Tasks.Task<IEnumerable<TagDto>> GetOrderTagsAsync(int orderId);
 
         /// <summary>
         /// Delete tag by identifier.
@@ -34,18 +47,19 @@ namespace HandiworkShop.BLL.Interfaces
         System.Threading.Tasks.Task DeleteAsync(int id);
 
         /// <summary>
-        /// Add user a tag.
+        /// Update user's tags.
         /// </summary>
-        /// <param name="id">Identifier..</param>
         /// <param name="userId">User identifier.</param>
-        System.Threading.Tasks.Task AddUserTagAsync(int id, string userId);
+        /// <param name="tagIds">List of tag ids.</param>
+        System.Threading.Tasks.Task UpdateUserTagsAsync(string userId, IList<int> tagIds);
 
         /// <summary>
-        /// Delete user's tag.
+        /// Update order's tags.
         /// </summary>
-        /// <param name="id">Identifier..</param>
+        /// <param name="orderId">Order identifier.</param>
+        /// <param name="tagIds">List of tag ids.</param>
         /// <param name="userId">User identifier.</param>
-        System.Threading.Tasks.Task DeleteUserTagAsync(int id, string userId);
+        System.Threading.Tasks.Task UpdateOrderTagsAsync(int orderId, IList<int> tagIds, string userId);
 
         /// <summary>
         /// Update tag by identifier.

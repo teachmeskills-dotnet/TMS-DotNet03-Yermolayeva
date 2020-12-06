@@ -1,0 +1,25 @@
+﻿@model HandiworkShop.Web.ViewModels.CommentViewModel
+
+@{ ViewData["Title"] = "Новый комментарий"; }
+
+<form method="post" asp-action="CreateComment" asp-controller="Orders">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        @for (int i = 1; i <= 5; i++)
+        {
+            var id = "star" + i;
+            <input type="radio" id=@id name="Rating" value=@i>
+            <label for=@id title="text">@i звёзд</label>
+        }
+    </div>
+    <div>
+        <label asp-for="Text"></label>
+        <input asp-for="Text">
+    </div>
+    <div>
+        <input type="hidden" value="@Model.OrderId" name="OrderId">
+    </div>
+    <div>
+        <input type="submit" value="Сохранить">
+    </div>
+</form>

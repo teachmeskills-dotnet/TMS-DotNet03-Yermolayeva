@@ -14,12 +14,11 @@ namespace HandiworkShop.BLL.Interfaces
         System.Threading.Tasks.Task CreateAsync(ProfileDto profileDto);
 
         /// <summary>
-        /// Get profile by identifier.
+        /// Get profile by user identifier.
         /// </summary>
-        /// <param name="id">Identifier.</param>
         /// <param name="userId">User identifier.</param>
         /// <returns>Profile data transfer objects.</returns>
-        System.Threading.Tasks.Task<ProfileDto> GetProfileAsync(int id, string userId);
+        System.Threading.Tasks.Task<ProfileDto> GetProfileAsync(string userId);
 
         /// <summary>
         /// Delete profile by identifier.
@@ -32,19 +31,20 @@ namespace HandiworkShop.BLL.Interfaces
         /// Update profile by identifier.
         /// </summary>
         /// <param name="profileDto">Profile data transfer object.</param>
-        System.Threading.Tasks.Task UpdateProfileAsync(ProfileDto profileDto);
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task UpdateProfileAsync(ProfileDto profileDto, string userId);
 
         /// <summary>
-        /// Get all vendor profiles.
+        /// Switch profile status by identifier.
         /// </summary>
-        /// <returns>A collection of vendor profiles.</returns>
-        System.Threading.Tasks.Task<IEnumerable<ProfileDto>> GetAllVendorProfilesAsync();
+        /// <param name="userId">User identifier.</param>
+        System.Threading.Tasks.Task SwitchProfileStatusAsync(string userId);
 
         /// <summary>
         /// Get profiles by tags.
         /// </summary>
-        /// <param name="tags">Tags.</param>
-        /// <returns>A collection of profiles.</returns>
-        System.Threading.Tasks.Task<IEnumerable<ProfileDto>> GetProfilesByTagsAsync(IList<TagDto> tags);
+        /// <param name="tagIds">List of tag identifiers.</param>
+        /// <returns>List of profile data transfer objects.</returns>
+        System.Threading.Tasks.Task<IEnumerable<ProfileDto>> GetProfilesByTagsAsync(IList<int> tagIds);
     }
 }
