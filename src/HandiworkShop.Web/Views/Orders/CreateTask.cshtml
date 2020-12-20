@@ -1,0 +1,32 @@
+﻿@using HandiworkShop.Common.Resourses
+@model HandiworkShop.Web.ViewModels.TaskViewModel
+
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.CreateTask); }
+
+<form method="post" asp-action="CreateTask" asp-controller="Orders" class="template-form">
+    <div asp-validation-summary="All"></div>
+    <div class="upper-container"></div>
+
+    <div>
+        <label asp-for="Title" class="template-label"></label>
+        <input asp-for="Title" autocomplete="off" class="template-input">
+    </div>
+    <div>
+        <label asp-for="Description" class="template-label"></label>
+        <textarea asp-for="Description" autocomplete="off" class="template-input" rows="1"></textarea>
+    </div>
+    <div>
+        <label asp-for="Start" class="template-label"></label>
+        <input asp-for="Start" value=@DateTime.Now class="template-input">
+    </div>
+    <div>
+        <label asp-for="End" class="template-label"></label>
+        <input asp-for="End" class="template-input">
+    </div>
+
+        <input type="hidden" value="@Model.OrderId" name="OrderId">
+
+    <div>
+        <input type="submit" value="Создать" class="template-button">
+    </div>
+</form>

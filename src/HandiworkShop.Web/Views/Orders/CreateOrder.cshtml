@@ -1,0 +1,44 @@
+﻿@using HandiworkShop.Common.Resourses
+@model HandiworkShop.Web.ViewModels.OrderEditViewModel
+
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.CreateOrder); }
+
+<form method="post" asp-action="CreateOrder" asp-controller="Orders" class="template-form">
+    <div asp-validation-summary="All"></div>
+    <div class="upper-container"></div>
+    <div>
+        <label asp-for="Title" class="template-label"></label>
+        <input asp-for="Title" placeholder="Название" autocomplete="off" class="template-input">
+    </div>
+    <div>
+        <label asp-for="Description" class="template-label"></label>
+        <textarea asp-for="Description" placeholder="Описание" autocomplete="off" class="template-input" rows="1"></textarea>
+    </div>
+    <div>
+        <label asp-for="End" class="template-label"></label>
+        <input asp-for="End" placeholder=@DateTime.Now class="template-input">
+    </div>
+    <div>
+        <label asp-for="Price" class="template-label"></label>
+        <input asp-for="Price" class="template-input" autocomplete="off">
+        <p>BYN</p>
+    </div>
+    @if (Model.AllTags.Any())
+    {
+        <div class="tags">
+            @foreach (var tag in Model.AllTags)
+            {
+                var id = "tag" + tag.Id;
+                <input id=@id type="checkbox" name="tagIds" value=@tag.Id>
+                <label for=@id>@tag.Name</label>
+            }
+        </div>
+    }
+
+        <input type="hidden" value="@Model.ClientId" name="ClientId">
+        <input type="hidden" value="@Model.VendorId" name="VendorId">
+
+    <div class="submit-form">
+        <input type="submit" value="Создать" class="template-button">
+    </div>
+</form>

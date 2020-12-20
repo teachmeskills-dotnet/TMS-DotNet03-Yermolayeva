@@ -1,0 +1,80 @@
+﻿@using HandiworkShop.Common.Resourses
+@model (List<HandiworkShop.Web.ViewModels.TagViewModel> AllTags, List<HandiworkShop.Web.ViewModels.OrderViewModel> Orders)
+
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.OrderSearch); }
+
+<form method="get" asp-controller="Search" asp-action="Order">
+    <div class="search-bar">
+        <input type="search" maxlength="64" name="searchString" autocomplete="off">
+        <button type="submit" class="search-btn"><img src="~/images/search.png"></button>
+    </div>
+    <a class="arrowed-link" asp-action="Profile" asp-controller="Search">К поиску мастеров ➔</a>
+    @if (Model.AllTags.Any())
+    {
+        <div class="tags">
+            @foreach (var tag in Model.AllTags)
+            {
+                var id = "tag" + tag.Id;
+                <input id=@id type="checkbox" name="tagIds" value=@tag.Id>
+                <label for=@id>@tag.Name</label>
+            }
+        </div>
+    }
+</form>
+<div class="break-line"></div>
+<div class="orders">
+    @if (Model.Orders.Any())
+    {
+        @foreach (var order in Model.Orders)
+        {
+            <div class="order-card">
+                <div class="client-info">
+                    <p>Заказчик</p>
+                    <a asp-controller="profile" asp-action="index" asp-route-username=@order.ClientUserName>
+                        <div class="avatar">
+                            @if (order.ClientAvatar != null)
+                            {
+                                <img class="avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(order.ClientAvatar))">
+                            }
+                            else
+                            {
+                                <img class="avatar" src="~/images/default_avatar.jpg">
+                            }
+                        </div>
+                    </a>
+                    <p class="name">@order.ClientName</p>
+                    <p class="username">@('@')@order.ClientUserName</p>
+                </div>
+                <h3 class="name">@order.Title</h3>
+                <pre>@order.Description</pre>
+                @if (order.End is null)
+                {
+                    <p>Срок выполнения не определен</p>
+                }
+                else
+                {
+                    <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+                }
+                <p>Цена: @order.Price BYN</p>
+                <div class="tags">
+                    @if (order.Tags.Any())
+                    {
+                        foreach (var tag in order.Tags)
+                        {
+                            <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                                <p>@tag.Name</p>
+                            </a>
+                        }
+                    }
+                </div>
+                <form method="post" asp-controller="Orders" asp-action="AcceptOrder" asp-route-orderId=@order.Id asp-route-returnUrl=@ViewContext.HttpContext.Request.Path>
+                    <button type="submit" class="template-button">Принять заказ</button>
+                </form>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Ничего не найдено</p>
+    }
+</div>
