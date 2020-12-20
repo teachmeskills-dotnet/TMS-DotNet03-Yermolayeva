@@ -4,27 +4,26 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+    <link href="~/css/app.css" rel="stylesheet" asp-append-version="true" />
+    @RenderSection("css", false)
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">
-                <a asp-controller="Home" asp-action="Index"><img class="logo__image" src="~/images/logo.png" alt="logo"></a>
+                <a asp-controller="Home" asp-action="Index"><img class="logo-image" src="~/images/logo.png" alt="logo"></a>
             </div>
-            @if (User.Identity.IsAuthenticated)
-            {
-                <form method="get" asp-controller="Search" asp-action="SearchProfile">
-                    <button type="submit"><img class="search__image" src="~/images/search.png" alt="search"></button>
-                </form>
-
-                <form method="post" asp-controller="Account" asp-action="Logout">
-                    <button type="submit"><img class="logout__image" src="~/images/logout.png" alt="logout"></button>
-                </form>
-
-                <form method="get" asp-controller="Profile" asp-action="Index">
-                    <button type="submit"><img class="logout__image" src="~/images/account_circle.png" alt="profile"></button>
-                </form>
-            }
+            <div class="nav-buttons">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-antiforgery="true">
+                        <input formmethod="get" asp-controller="Search" asp-action="Index" type="image" src="~/images/search.png" alt="search" title="поиск">
+                        <input formmethod="get" asp-controller="Orders" asp-action="Index" type="image" src="~/images/shopping_bag.png" alt="orders" title="заказы">
+                        <input formmethod="get" asp-controller="Profile" asp-action="Index" asp-route-userName="" type="image" src="~/images/account_circle.png" alt="profile" title="профиль">
+                        <input formmethod="post" asp-controller="Account" asp-action="LogOut" type="image" src="~/images/logout.png" alt="logout" title="выйти">
+                    </form>
+                }
+            </div>
         </nav>
     </header>
 

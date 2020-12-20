@@ -1,19 +1,17 @@
-using System;
+using HandiworkShop.BLL.Interfaces;
+using HandiworkShop.BLL.Managers;
+using HandiworkShop.BLL.Repository;
+using HandiworkShop.DAL.Context;
+using HandiworkShop.DAL.Entities;
+using HandiworkShop.Web.Extensions;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using HandiworkShop.BLL.Interfaces;
-using HandiworkShop.BLL.Managers;
-using HandiworkShop.DAL.Context;
-using HandiworkShop.DAL.Entities;
-using HandiworkShop.BLL.Repository;
 using Serilog;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
 using System.Threading.Tasks;
-using HandiworkShop.Web.Extensions;
 
 namespace HandiworkShop.Web
 {
@@ -23,7 +21,8 @@ namespace HandiworkShop.Web
         {
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
-        public IConfiguration Configuration { get; } 
+
+        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -50,9 +49,9 @@ namespace HandiworkShop.Web
             {
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
             })
                 .AddEntityFrameworkStores<HandiworkShopContext>()
                 .AddDefaultTokenProviders();
@@ -60,7 +59,7 @@ namespace HandiworkShop.Web
             services.AddControllersWithViews();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
             //app.UseDeveloperExceptionPage();
             app.UseSerilogRequestLogging();
@@ -76,16 +75,15 @@ namespace HandiworkShop.Web
 
             CreateRoles(serviceProvider);
 
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-            });      
+            });
         }
 
-        private void CreateRoles(IServiceProvider serviceProvider)
+        private static void CreateRoles(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 

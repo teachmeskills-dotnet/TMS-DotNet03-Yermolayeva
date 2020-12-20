@@ -1,16 +1,17 @@
 ﻿using HandiworkShop.BLL.Interfaces;
 using HandiworkShop.BLL.Models;
 using HandiworkShop.Common.Enums;
+using HandiworkShop.Common.Resourses;
 using HandiworkShop.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HandiworkShop.BLL.Managers
 {
+    ///<inheritdoc cref="IOrderManager"/>
     public class OrderManager : IOrderManager
     {
         private readonly IRepository<Order> _repositoryOrder;
@@ -62,15 +63,13 @@ namespace HandiworkShop.BLL.Managers
 
         public async System.Threading.Tasks.Task DeleteAsync(int id, string userId)
         {
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id && order.ClientId == userId);
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id
+                && order.ClientId == userId
+                && order.State != StateType.InProcess && order.State != StateType.Completed);
+
             if (order is null)
             {
-                throw new KeyNotFoundException();
-            }
-
-            if (order.State == StateType.InProcess || order.State == StateType.Completed)
-            {
-                throw new Exception();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             _repositoryOrder.Delete(order);
@@ -82,21 +81,20 @@ namespace HandiworkShop.BLL.Managers
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id);
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             CommentDto commentDto = null;
 
-            if (order.CommentCreated  != null)
+            if (order.CommentCreated != null && order.CommentRating != null)
             {
                 commentDto = new CommentDto()
                 {
                     OrderId = order.Id,
                     Text = order.CommentText,
-                    Created = order.CommentCreated ?? throw new Exception(),
-                    Rating = order.CommentRating ?? throw new Exception(),
+                    Created = (DateTime)order.CommentCreated,
+                    Rating = (int)order.CommentRating
                 };
-                
             }
 
             var orderDto = new OrderDto
@@ -121,7 +119,9 @@ namespace HandiworkShop.BLL.Managers
             var orders = await _repositoryOrder
                 .GetAll()
                 .AsNoTracking()
-                .Where(order => order.VendorId == userId && order.State != StateType.CanceledByVendor && order.State != StateType.CanceledByClient)
+                .Where(order => order.VendorId == userId
+                    && (order.State == StateType.Completed || order.State == StateType.InProcess
+                    || (order.State == StateType.AwaitingConfirm && (order.End == null || order.End >= DateTime.Now.Date))))
                 .ToListAsync();
 
             if (orders.Any())
@@ -130,16 +130,15 @@ namespace HandiworkShop.BLL.Managers
                 {
                     CommentDto commentDto = null;
 
-                    if (order.CommentCreated != null)
+                    if (order.CommentCreated != null && order.CommentRating != null)
                     {
                         commentDto = new CommentDto()
                         {
                             OrderId = order.Id,
                             Text = order.CommentText,
-                            Created = order.CommentCreated ?? throw new Exception(),
-                            Rating = order.CommentRating ?? throw new Exception(),
+                            Created = (DateTime)order.CommentCreated,
+                            Rating = (int)order.CommentRating
                         };
-
                     }
                     orderDtos.Add(new OrderDto
                     {
@@ -155,7 +154,7 @@ namespace HandiworkShop.BLL.Managers
                         Comment = commentDto
                     });
                 }
-            }           
+            }
 
             return orderDtos;
         }
@@ -175,17 +174,22 @@ namespace HandiworkShop.BLL.Managers
                 {
                     CommentDto commentDto = null;
 
-                    if (order.CommentCreated != null)
+                    if (order.CommentCreated != null && order.CommentRating != null)
                     {
                         commentDto = new CommentDto()
                         {
                             OrderId = order.Id,
                             Text = order.CommentText,
-                            Created = order.CommentCreated ?? throw new Exception(),
-                            Rating = order.CommentRating ?? throw new Exception(),
+                            Created = (DateTime)order.CommentCreated,
+                            Rating = (int)order.CommentRating
                         };
-
                     }
+                    else if ((order.State == StateType.AwaitingConfirm || order.State == StateType.AwaitingVendor)
+                        && order.End < DateTime.Now.Date)
+                    {
+                        await UpdateOrderStateAsync(order.Id, StateType.CanceledByClient, userId);
+                    }
+
                     orderDtos.Add(new OrderDto
                     {
                         Id = order.Id,
@@ -200,7 +204,7 @@ namespace HandiworkShop.BLL.Managers
                         Comment = commentDto
                     });
                 }
-            }           
+            }
 
             return orderDtos;
         }
@@ -209,14 +213,14 @@ namespace HandiworkShop.BLL.Managers
         {
             orderDto = orderDto ?? throw new ArgumentNullException(nameof(orderDto));
 
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == orderDto.Id 
-                && order.ClientId == userId 
-                && order.State != StateType.Completed 
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == orderDto.Id
+                && order.ClientId == userId
+                && order.State != StateType.Completed
                 && order.State != StateType.InProcess);
 
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             static bool ValidateToUpdate(Order order, OrderDto orderDto)
@@ -232,12 +236,6 @@ namespace HandiworkShop.BLL.Managers
                 if (order.Description != orderDto.Description)
                 {
                     order.Description = orderDto.Description;
-                    updated = true;
-                }
-
-                if (order.End != orderDto.End)
-                {
-                    order.End = orderDto.End;
                     updated = true;
                 }
 
@@ -269,33 +267,33 @@ namespace HandiworkShop.BLL.Managers
 
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             bool updated = false;
             switch (state)
             {
                 case StateType.Completed:
-                    if (order.State == StateType.InProcess 
+                    if (order.State == StateType.InProcess
                         && order.VendorId == userId)
                     {
-                        order.State = state;
                         order.End = DateTime.Now;
                         updated = true;
                     }
                     break;
+
                 case StateType.InProcess:
                     {
                         if (order.State == StateType.AwaitingVendor
                             || (order.State == StateType.AwaitingConfirm
                             && order.VendorId == userId))
                         {
-                            order.State = state;
                             order.VendorId = userId;
                             updated = true;
                         }
                     }
                     break;
+
                 case StateType.CanceledByClient:
                     {
                         if (order.ClientId == userId
@@ -303,42 +301,41 @@ namespace HandiworkShop.BLL.Managers
                             || order.State == StateType.AwaitingVendor
                             || order.State == StateType.InProcess))
                         {
-                            order.State = state;
                             updated = true;
                         }
                     }
                     break;
+
                 case StateType.CanceledByVendor:
                     {
                         if (order.VendorId == userId
                             && (order.State == StateType.AwaitingConfirm
                             || order.State == StateType.InProcess))
                         {
-                            order.State = state;
                             updated = true;
                         }
                     }
                     break;
+
                 case StateType.AwaitingConfirm:
                     {
                         if (order.ClientId == userId
                             && (order.State == StateType.CanceledByClient
                             || order.State == StateType.CanceledByVendor))
                         {
-                            order.State = state;
                             order.VendorId = vendorId;
                             order.Start = DateTime.Now;
                             updated = true;
                         }
                     }
                     break;
+
                 case StateType.AwaitingVendor:
                     {
                         if (order.ClientId == userId
                             && (order.State == StateType.CanceledByClient
                             || order.State == StateType.CanceledByVendor))
                         {
-                            order.State = state;
                             order.VendorId = null;
                             order.Start = DateTime.Now;
                             updated = true;
@@ -350,26 +347,23 @@ namespace HandiworkShop.BLL.Managers
 
             if (updated)
             {
+                order.State = state;
                 await _repositoryOrder.SaveChangesAsync();
+                if (state != StateType.InProcess)
+                {
+                    var tasks = await _repositoryTask
+                     .GetAll()
+                     .AsNoTracking()
+                     .Where(task => task.OrderId == order.Id)
+                     .ToListAsync();
+
+                    _repositoryTask.DeleteRange(tasks);
+                    await _repositoryTask.SaveChangesAsync();
+                }
             }
             else
             {
-                throw new Exception();
-            }
-
-            if (state != StateType.InProcess)
-            {
-                var tasks = await _repositoryTask
-                 .GetAll()
-                 .AsNoTracking()
-                 .Where(task => task.OrderId == order.Id)
-                 .ToListAsync();
-
-                foreach (var task in tasks)
-                {
-                    _repositoryTask.Delete(task);
-                }
-                await _repositoryTask.SaveChangesAsync();
+                throw new InvalidOperationException(ErrorResource.UnableToUpdateOrderState);
             }
         }
 
@@ -390,7 +384,9 @@ namespace HandiworkShop.BLL.Managers
                 orders = await _repositoryOrder
                     .GetAll()
                     .AsNoTracking()
-                    .Where(order => orderIds.Contains(order.Id) && order.State == StateType.AwaitingVendor)
+                    .Where(order => orderIds.Contains(order.Id)
+                        && order.State == StateType.AwaitingVendor
+                        && (order.End == null || order.End >= DateTime.Now.Date))
                     .ToListAsync();
             }
             else
@@ -398,7 +394,8 @@ namespace HandiworkShop.BLL.Managers
                 orders = await _repositoryOrder
                     .GetAll()
                     .AsNoTracking()
-                    .Where(order => order.State == StateType.AwaitingVendor)
+                    .Where(order => order.State == StateType.AwaitingVendor
+                        && (order.End == null || order.End >= DateTime.Now.Date))
                     .ToListAsync();
             }
 
@@ -406,14 +403,6 @@ namespace HandiworkShop.BLL.Managers
             {
                 foreach (var order in orders)
                 {
-                    var commentDto = new CommentDto();
-                    if (order.CommentCreated != null)
-                    {
-                        commentDto.OrderId = order.Id;
-                        commentDto.Text = order.CommentText;
-                        commentDto.Created = order.CommentCreated ?? throw new Exception();
-                        commentDto.Rating = order.CommentRating ?? throw new Exception();
-                    }
                     orderDtos.Add(new OrderDto
                     {
                         Id = order.Id,
@@ -424,12 +413,10 @@ namespace HandiworkShop.BLL.Managers
                         State = order.State,
                         ClientId = order.ClientId,
                         VendorId = order.VendorId,
-                        Price = order.Price,
-                        Comment = commentDto
+                        Price = order.Price
                     });
                 }
             }
-           
             return orderDtos;
         }
 
@@ -437,14 +424,14 @@ namespace HandiworkShop.BLL.Managers
         {
             commentDto = commentDto ?? throw new ArgumentNullException(nameof(commentDto));
 
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == commentDto.OrderId 
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == commentDto.OrderId
                 && order.ClientId == userId
                 && order.State == StateType.Completed
-                && order.CommentRating == null);
+                && order.CommentRating == null && order.CommentCreated == null);
 
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             order.CommentText = commentDto.Text;
@@ -454,6 +441,33 @@ namespace HandiworkShop.BLL.Managers
             await _repositoryOrder.SaveChangesAsync();
         }
 
+        public async Task<CommentDto> GetOrderCommentAsync(int id, string userId)
+        {
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id
+                && order.State == StateType.Completed
+                && order.ClientId == userId);
+
+            if (order is null)
+            {
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
+            }
+
+            CommentDto commentDto = null;
+
+            if (order.CommentCreated != null && order.CommentRating != null)
+            {
+                commentDto = new CommentDto()
+                {
+                    OrderId = order.Id,
+                    Text = order.CommentText,
+                    Created = (DateTime)order.CommentCreated,
+                    Rating = (int)order.CommentRating
+                };
+            }
+
+            return commentDto;
+        }
+
         public async System.Threading.Tasks.Task UpdateOrderCommentAsync(CommentDto commentDto, string userId)
         {
             commentDto = commentDto ?? throw new ArgumentNullException(nameof(commentDto));
@@ -461,11 +475,11 @@ namespace HandiworkShop.BLL.Managers
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == commentDto.OrderId
                 && order.ClientId == userId
                 && order.State == StateType.Completed
-                && order.CommentCreated != null);
+                && order.CommentCreated != null && order.CommentRating != null);
 
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             static bool ValidateToUpdate(Order order, CommentDto commentDto)
@@ -496,14 +510,14 @@ namespace HandiworkShop.BLL.Managers
 
         public async System.Threading.Tasks.Task DeleteOrderCommentAsync(int id, string userId)
         {
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id 
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id
                 && order.ClientId == userId
                 && order.State == StateType.Completed
-                && order.CommentCreated != null);
+                && order.CommentCreated != null && order.CommentRating != null);
 
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             order.CommentText = null;
@@ -516,56 +530,30 @@ namespace HandiworkShop.BLL.Managers
         {
             var commentDtos = new List<CommentDto>();
 
-            var comments = await _repositoryOrder
+            var orders = await _repositoryOrder
                 .GetAll()
                 .AsNoTracking()
-                .Where(order => order.VendorId == userId && order.State == StateType.Completed &&  order.CommentRating != null)
-                .Select(order => new { 
-                    OrderId = order.Id, 
-                    AuthorId = order.ClientId,
-                    Text =  order.CommentText, 
-                    Rating = order.CommentRating,
-                    Created = order.CommentCreated})
+                .Where(order => order.VendorId == userId
+                    && order.State == StateType.Completed
+                    && order.CommentRating != null
+                    && order.CommentCreated != null)
                 .ToListAsync();
 
-            if (comments.Any())
+            if (orders.Any())
             {
-                foreach (var comment in comments)
+                foreach (var order in orders)
                 {
                     commentDtos.Add(new CommentDto
                     {
-                        Created = comment.Created ?? throw new Exception(),
-                        OrderId = comment.OrderId,
-                        AuthorId = comment.AuthorId,
-                        Rating = comment.Rating ?? throw new Exception(),
-                        Text = comment.Text
+                        Created = (DateTime)order.CommentCreated,
+                        OrderId = order.Id,
+                        AuthorId = order.ClientId,
+                        Rating = (int)order.CommentRating,
+                        Text = order.CommentText
                     });
                 }
-            }           
-            return commentDtos;
-        }
-
-        public async Task<CommentDto> GetOrderCommentAsync(int id, string userId)
-        {
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == id
-                && order.State == StateType.Completed
-                && order.CommentCreated != null
-                && order.ClientId == userId);
-
-            if (order is null)
-            {
-                throw new KeyNotFoundException();
             }
-
-            var commentDto = new CommentDto()
-            {
-                AuthorId = order.ClientId,
-                Created = order.CommentCreated ?? throw new Exception(),
-                OrderId = order.Id,
-                Rating = order.CommentRating ?? throw new Exception(),
-                Text = order.CommentText
-            };
-            return commentDto;
+            return commentDtos;
         }
     }
 }

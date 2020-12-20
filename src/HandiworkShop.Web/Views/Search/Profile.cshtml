@@ -1,0 +1,85 @@
+﻿@using HandiworkShop.Common.Resourses
+@using HandiworkShop.Common.Constants
+
+@model (List<HandiworkShop.Web.ViewModels.TagViewModel> AllTags, List<HandiworkShop.Web.ViewModels.ProfileViewModel> Profiles)
+
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.ProfileSearch); }
+
+<form method="get" asp-controller="Search" asp-action="Profile">
+    <div class="search-bar">
+        <input type="search" maxlength="64" name="searchString" autocomplete="off">
+        <button type="submit" class="search-btn"><img src="~/images/search.png"></button>
+    </div>
+    @if (User.IsInRole(RolesConstants.VendorRole))
+    {
+        <a class="arrowed-link" asp-action="Order" asp-controller="Search">К поиску заказов ➔</a>
+    }
+    @if (Model.AllTags.Any())
+    {
+        <div class="tags">
+            @foreach (var tag in Model.AllTags)
+            {
+                var id = "tag" + tag.Id;
+                <input id=@id type="checkbox" name="tagIds" value=@tag.Id>
+                <label for=@id>@tag.Name</label>
+            }
+        </div>
+    }
+</form>
+<div class="break-line"></div>
+<div class="profiles">
+    @if (Model.Profiles.Any())
+    {
+        @foreach (var profile in Model.Profiles)
+        {
+            <div class="profile-card">
+                <div class="upper-container">
+                    <a asp-controller="profile" asp-action="index" asp-route-username=@profile.UserName>
+                        <div class="avatar">
+                            @if (profile.Avatar != null)
+                            {
+                                <img src="data:image/jpeg;base64,@(Convert.ToBase64String(profile.Avatar))">
+                            }
+                            else
+                            {
+                                <img src="~/images/default_avatar.jpg">
+                            }
+                        </div>
+                    </a>
+                </div>
+                <p class="name">@profile.Name</p>
+                <p class="username">@('@')@profile.UserName</p>
+                <pre>@profile.Info</pre>
+                @if (profile.Rating is null)
+                {
+                    <p class="rating">Рейтинг отсутствует</p>
+
+                }
+                else
+                {
+                    <p class="rating">Рейтинг: @String.Format("{0:0.00}", profile.Rating)</p>
+                }
+                <div class="tags">
+                    @if (profile.Tags.Any())
+                    {
+                        foreach (var tag in profile.Tags)
+                        {
+                            <a asp-controller="Search" asp-action="Profile" asp-route-tagIds=@tag.Id>
+                                <p>@tag.Name</p>
+                            </a>
+                        }
+                    }
+                </div>
+
+                <form method="get" asp-controller="Orders" asp-action="CreateOrder">
+                    <button name="vendorId" value=@profile.UserId type="submit" class="template-button">Сделать заказ</button>
+                </form>
+            </div>
+
+        }
+    }
+    else
+    {
+        <p>Ничего не найдено</p>
+    }
+</div>

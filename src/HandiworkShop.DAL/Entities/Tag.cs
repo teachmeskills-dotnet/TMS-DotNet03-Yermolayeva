@@ -1,13 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace HandiworkShop.DAL.Entities
 {
-    public class Tag 
+    /// <summary>
+    /// Entity tag.
+    /// </summary>
+    public class Tag
     {
+        /// <summary>
+        /// Identifier.
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// Name.
+        /// </summary>
         public string Name { get; set; }
 
         /// <summary>

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HandiworkShop.BLL.Models
+﻿namespace HandiworkShop.BLL.Models
 {
     /// <summary>
-    /// Data transfer object (Tag).
+    /// Tag data transfer object.
     /// </summary>
     public class TagDto
     {

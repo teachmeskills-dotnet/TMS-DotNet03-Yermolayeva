@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
-using HandiworkShop.Common;
 
 namespace HandiworkShop.DAL.Entities
 {
     /// <summary>
-    /// Profile.
+    /// Entity Profile.
     /// </summary>
     public class Profile
     {
+        /// <summary>
+        /// Identifier.
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// User identifier.
+        /// </summary>
         public string UserId { get; set; }
 
         /// <summary>
@@ -21,14 +22,29 @@ namespace HandiworkShop.DAL.Entities
         /// </summary>
         public ApplicationUser User { get; set; }
 
+        /// <summary>
+        /// Name.
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Avatar.
+        /// </summary>
         public byte[] Avatar { get; set; }
 
+        /// <summary>
+        /// Is vendor.
+        /// </summary>
         public bool IsVendor { get; set; }
 
+        /// <summary>
+        /// Info.
+        /// </summary>
         public string Info { get; set; }
 
+        /// <summary>
+        /// Created.
+        /// </summary>
         public DateTime Created { get; set; }
     }
 }

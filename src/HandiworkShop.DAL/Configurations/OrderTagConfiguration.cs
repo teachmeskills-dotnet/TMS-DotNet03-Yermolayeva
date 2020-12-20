@@ -3,13 +3,15 @@ using HandiworkShop.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HandiworkShop.DAL.Configurations
 {
-    class OrderTagConfiguration : IEntityTypeConfiguration<OrderTag>
+    /// <summary>
+    /// EF Configuration for OrderTag entity.
+    /// </summary>
+    public class OrderTagConfiguration : IEntityTypeConfiguration<OrderTag>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<OrderTag> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));

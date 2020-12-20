@@ -1,49 +1,69 @@
-﻿@model HandiworkShop.Web.ViewModels.SettingsViewModel
+﻿@using HandiworkShop.Common.Resourses
+@model HandiworkShop.Web.ViewModels.SettingsViewModel
 
-@{ ViewData["Title"] = "Настройки"; }
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.Settings); }
 
-<form method="post" asp-action="Settings" asp-controller="Account">
-    <div asp-validation-summary="ModelOnly"></div>
+<form method="post" asp-action="Settings" asp-controller="Account" enctype="multipart/form-data" class="template-form">
+    <div asp-validation-summary="All"></div>
+    <div class="upper-container"></div>
     <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name">
-        <span asp-validation-for="Name"></span>
+        <label asp-for="Name" class="template-label"></label>
+        <input asp-for="Name" autocomplete="off" class="template-input">
     </div>
     <div>
-        <label asp-for="Info"></label>
-        <input asp-for="Info">
+        <label asp-for="Info" class="template-label"></label>
+        <textarea asp-for="Info" autocomplete="off" class="template-input"></textarea>
     </div>
     <div>
-        <label asp-for="IsVendor"></label>
+        <label asp-for="IsVendor" class="template-label"></label>
         <input asp-for="IsVendor">
     </div>
-    <div>
-        @if (Model.AllTags.Any())
+
+    <div class="avatar">
+        @if (Model.Avatar != null)
         {
-        @foreach (var tag in Model.AllTags)
-        
-            @if (Model.TagIds.Contains(tag.Id))
-            {
-                <div>
-                    <label>@tag.Name</label>
-                    <input type = "checkbox" name="TagIds" value=@tag.Id checked>
-                </div>
-            }
-            else
-            {
-                <div>
-                    <label>@tag.Name</label>
-                    <input type="checkbox"name="TagIds" value=@tag.Id>
-                </div>
-            }
-            }
+            <img id="output" src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Avatar))">
+        }
+        else
+        {
+            <img id="output" src="~/images/default_avatar.jpg">
         }
     </div>
+
     <div>
-        <input type="hidden" value="@Model.Id" name="Id">
-        <input type="hidden" value="@Model.UserId" name="UserId">
+        <label asp-for="NewAvatar" class="template-button"></label>
+        <input asp-for="NewAvatar" accept="image/*" hidden>
     </div>
+    @if (Model.AllTags.Any())
+    {
+        <div class="tags">
+            @foreach (var tag in Model.AllTags)
+            {
+                @if (Model.TagIds != null && Model.TagIds.Contains(tag.Id))
+                {
+                    var id = "tag" + tag.Id;
+                    <input id=@id type="checkbox" name="tagIds" value=@tag.Id checked>
+                    <label for=@id>@tag.Name</label>
+                }
+                else
+                {
+                    var id = "tag" + tag.Id;
+                    <input id=@id type="checkbox" name="tagIds" value=@tag.Id>
+                    <label for=@id>@tag.Name</label>
+                }
+
+            }
+        </div>
+    }
+
+    <input type="hidden" value="@Model.Id" name="Id">
+    <input type="hidden" value="@Model.UserId" name="UserId">
+
     <div>
-        <input type="submit" value="Сохранить">
+        <input type="submit" value="Сохранить" class="template-button">
     </div>
 </form>
+
+@section js {
+    <script src="~/js/app.js" asp-append-version="true"></script>
+}

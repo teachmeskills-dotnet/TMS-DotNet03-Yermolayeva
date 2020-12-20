@@ -1,21 +1,24 @@
 ﻿using HandiworkShop.BLL.Interfaces;
 using HandiworkShop.BLL.Models;
 using HandiworkShop.Common.Enums;
+using HandiworkShop.Common.Resourses;
 using HandiworkShop.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace HandiworkShop.BLL.Managers
 {
+    ///<inheritdoc cref="ITaskManager"/>
     public class TaskManager : ITaskManager
     {
         private readonly IRepository<DAL.Entities.Task> _repositoryTask;
         private readonly IRepository<Order> _repositoryOrder;
 
-        public TaskManager(IRepository<DAL.Entities.Task> repositoryTask, IRepository<Order> repositoryOrder)
+        public TaskManager(
+            IRepository<DAL.Entities.Task> repositoryTask,
+            IRepository<Order> repositoryOrder)
         {
             _repositoryTask = repositoryTask ?? throw new ArgumentNullException(nameof(repositoryTask));
             _repositoryOrder = repositoryOrder ?? throw new ArgumentNullException(nameof(repositoryOrder));
@@ -25,16 +28,12 @@ namespace HandiworkShop.BLL.Managers
         {
             taskDto = taskDto ?? throw new ArgumentNullException(nameof(taskDto));
 
-            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == taskDto.OrderId && order.VendorId == userId);
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == taskDto.OrderId
+                && order.VendorId == userId && order.State == StateType.InProcess);
 
-            if(order is null)
+            if (order is null)
             {
-                throw new KeyNotFoundException();
-            }
-
-            if (order.State != StateType.InProcess)
-            {
-                throw new Exception();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             var task = new Task
@@ -49,7 +48,6 @@ namespace HandiworkShop.BLL.Managers
 
             await _repositoryTask.CreateAsync(task);
             await _repositoryTask.SaveChangesAsync();
-
         }
 
         public async System.Threading.Tasks.Task DeleteAsync(int id, string userId)
@@ -57,7 +55,13 @@ namespace HandiworkShop.BLL.Managers
             var task = await _repositoryTask.GetEntityAsync(task => task.Id == id);
             if (task is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TaskNotFound);
+            }
+
+            var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
+            if (order is null)
+            {
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             _repositoryTask.Delete(task);
@@ -69,7 +73,7 @@ namespace HandiworkShop.BLL.Managers
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == orderId && order.VendorId == userId);
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             var taskDtos = new List<TaskDto>();
@@ -91,11 +95,11 @@ namespace HandiworkShop.BLL.Managers
                         Start = task.Start,
                         End = task.End,
                         State = task.State,
-                        OrderId = task.OrderId                      
+                        OrderId = task.OrderId
                     });
                 }
             }
-            
+
             return taskDtos;
         }
 
@@ -104,13 +108,13 @@ namespace HandiworkShop.BLL.Managers
             var task = await _repositoryTask.GetEntityAsync(task => task.Id == id);
             if (task is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TaskNotFound);
             }
 
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             var taskDto = new TaskDto
@@ -128,7 +132,7 @@ namespace HandiworkShop.BLL.Managers
 
         public async System.Threading.Tasks.Task<IEnumerable<TaskDto>> GetUserTasksByDateAsync(string userId, DateTime date)
         {
-            var orders = await _repositoryOrder
+            var orderIds = await _repositoryOrder
                 .GetAll()
                 .AsNoTracking()
                 .Where(order => order.VendorId == userId && order.State == StateType.InProcess)
@@ -140,7 +144,7 @@ namespace HandiworkShop.BLL.Managers
             var tasks = await _repositoryTask
                 .GetAll()
                 .AsNoTracking()
-                .Where(task => orders.Contains(task.OrderId) && date >= task.Start && date <= task.End)
+                .Where(task => orderIds.Contains(task.OrderId) && date >= task.Start && date <= task.End)
                 .ToListAsync();
 
             if (tasks.Any())
@@ -159,7 +163,7 @@ namespace HandiworkShop.BLL.Managers
                     });
                 }
             }
-            
+
             return taskDtos;
         }
 
@@ -169,13 +173,13 @@ namespace HandiworkShop.BLL.Managers
             var task = await _repositoryTask.GetEntityAsync(task => task.Id == taskDto.Id);
             if (task is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TaskNotFound);
             }
 
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             static bool ValidateToUpdate(Task task, TaskDto taskDto)
@@ -221,18 +225,22 @@ namespace HandiworkShop.BLL.Managers
             var task = await _repositoryTask.GetEntityAsync(task => task.Id == id);
             if (task is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TaskNotFound);
             }
 
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == task.OrderId && order.VendorId == userId);
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             if (task.State == StateType.InProcess)
             {
                 task.State = StateType.Completed;
+                if (task.End == null)
+                {
+                    task.End = DateTime.Now.Date;
+                }
             }
             else
             {

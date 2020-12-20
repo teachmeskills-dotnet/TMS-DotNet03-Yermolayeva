@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using HandiworkShop.Common.Constants;
+﻿using HandiworkShop.Common.Constants;
 using HandiworkShop.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
 namespace HandiworkShop.DAL.Configurations
 {
+    /// <summary>
+    /// EF Configuration for Task entity.
+    /// </summary>
     public class TaskConfiguration : IEntityTypeConfiguration<Task>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Task> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));

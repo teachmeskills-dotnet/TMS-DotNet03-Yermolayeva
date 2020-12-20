@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using HandiworkShop.Common.Constants;
+﻿using HandiworkShop.Common.Constants;
 using HandiworkShop.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
 namespace HandiworkShop.DAL.Configurations
 {
+    /// <summary>
+    /// EF Configuration for UserTag entity.
+    /// </summary>
     public class UserTagConfiguration : IEntityTypeConfiguration<UserTag>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<UserTag> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));

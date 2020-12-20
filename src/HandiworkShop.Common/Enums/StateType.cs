@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HandiworkShop.Common.Enums
+﻿namespace HandiworkShop.Common.Enums
 {
     /// <summary>
     /// State of order.
@@ -25,12 +21,12 @@ namespace HandiworkShop.Common.Enums
         InProcess = 2,
 
         /// <summary>
-        /// Canceled.
+        /// Canceled by client.
         /// </summary>
         CanceledByClient = 3,
 
         /// <summary>
-        /// Canceled.
+        /// Canceled by vendor.
         /// </summary>
         CanceledByVendor = 4,
 

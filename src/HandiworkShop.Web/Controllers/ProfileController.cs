@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HandiworkShop.BLL.Interfaces;
-using HandiworkShop.BLL.Models;
+﻿using HandiworkShop.BLL.Interfaces;
 using HandiworkShop.Common.Enums;
 using HandiworkShop.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.Controllers
 {
@@ -19,7 +18,6 @@ namespace HandiworkShop.Web.Controllers
         private readonly IOrderManager _orderManager;
         private readonly ITagManager _tagManager;
 
-
         public ProfileController(
             IAccountManager accountManager,
             IProfileManager profileManager,
@@ -30,7 +28,6 @@ namespace HandiworkShop.Web.Controllers
             _profileManager = profileManager ?? throw new ArgumentNullException(nameof(profileManager));
             _orderManager = orderManager ?? throw new ArgumentNullException(nameof(orderManager));
             _tagManager = tagManager ?? throw new ArgumentNullException(nameof(tagManager));
-
         }
 
         [Route("profile/{userName?}")]
@@ -68,7 +65,7 @@ namespace HandiworkShop.Web.Controllers
             }
             if (tags.Any())
             {
-                foreach(var tag in tags)
+                foreach (var tag in tags)
                 {
                     tagViewModels.Add(new TagViewModel
                     {

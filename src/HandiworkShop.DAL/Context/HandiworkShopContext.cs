@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using HandiworkShop.DAL.Configurations;
+﻿using HandiworkShop.DAL.Configurations;
 using HandiworkShop.DAL.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace HandiworkShop.DAL.Context
@@ -15,7 +15,7 @@ namespace HandiworkShop.DAL.Context
         /// Constructor.
         /// </summary>
         /// <param name="options">DbContextOptions</param>
-        public HandiworkShopContext(DbContextOptions<HandiworkShopContext> options):base(options){}
+        public HandiworkShopContext(DbContextOptions<HandiworkShopContext> options) : base(options) { }
 
         /// <summary>
         /// Profiles.
@@ -47,19 +47,18 @@ namespace HandiworkShop.DAL.Context
         /// </summary>
         public DbSet<OrderTag> OrderTags { get; set; }
 
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuilder = modelBuilder ?? throw new ArgumentNullException(nameof(modelBuilder));
+            builder = builder ?? throw new ArgumentNullException(nameof(builder));
 
-            modelBuilder.ApplyConfiguration(new ProfileConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderConfiguration());
-            modelBuilder.ApplyConfiguration(new TaskConfiguration());
-            modelBuilder.ApplyConfiguration(new TagConfiguration());
-            modelBuilder.ApplyConfiguration(new UserTagConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderTagConfiguration());
+            builder.ApplyConfiguration(new ProfileConfiguration());
+            builder.ApplyConfiguration(new OrderConfiguration());
+            builder.ApplyConfiguration(new TaskConfiguration());
+            builder.ApplyConfiguration(new TagConfiguration());
+            builder.ApplyConfiguration(new UserTagConfiguration());
+            builder.ApplyConfiguration(new OrderTagConfiguration());
 
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
-using HandiworkShop.BLL.Interfaces;
+﻿using HandiworkShop.BLL.Interfaces;
+using HandiworkShop.BLL.Models;
+using HandiworkShop.Common.Constants;
+using HandiworkShop.Common.Resourses;
 using HandiworkShop.DAL.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using HandiworkShop.BLL.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace HandiworkShop.BLL.Managers
 {
@@ -17,16 +17,18 @@ namespace HandiworkShop.BLL.Managers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IProfileManager _profileManager;
 
-        public AccountManager(UserManager<ApplicationUser> userManager, IProfileManager profileManager)
+        public AccountManager(
+            UserManager<ApplicationUser> userManager,
+            IProfileManager profileManager)
         {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _profileManager = profileManager ?? throw new ArgumentNullException(nameof(profileManager));
         }
 
         public async System.Threading.Tasks.Task<(IdentityResult, ApplicationUser)> SignUpAsync(
-            string email, 
+            string email,
             string userName,
-            string password, 
+            string password,
             bool isVendor)
         {
             ApplicationUser applicationUser = new ApplicationUser()
@@ -40,7 +42,7 @@ namespace HandiworkShop.BLL.Managers
             {
                 if (isVendor)
                 {
-                    await _userManager.AddToRoleAsync(applicationUser, "vendor");
+                    await _userManager.AddToRoleAsync(applicationUser, RolesConstants.VendorRole);
                 }
                 await _profileManager.CreateAsync(new ProfileDto
                 {
@@ -58,7 +60,7 @@ namespace HandiworkShop.BLL.Managers
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == name);
             if (user is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.UserNotFound);
             }
             return user.Id;
         }
@@ -68,18 +70,18 @@ namespace HandiworkShop.BLL.Managers
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Id == id);
             if (user is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.UserNotFound);
             }
             return user.UserName;
         }
 
         public async Task<IdentityResult> ChangePasswordAsync(string userId, string oldPassword, string newPassword)
         {
-            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user is null)
             {
-                throw new KeyNotFoundException();               
+                throw new KeyNotFoundException(ErrorResource.UserNotFound);
             }
 
             var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);

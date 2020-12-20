@@ -3,21 +3,21 @@
 namespace HandiworkShop.Web.ViewModels
 {
     /// <summary>
-    /// Sign in model.
+    /// Sign in view model.
     /// </summary>
     public class SignInViewModel
     {
         /// <summary>
         /// Email.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "Укажите имя пользователя")]
         [Display(Name = "Имя пользователя")]
         public string Username { get; set; }
 
         /// <summary>
         /// Password.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "Укажите пароль")]
         [DataType(DataType.Password)]
         [Display(Name = "Пароль")]
         public string Password { get; set; }

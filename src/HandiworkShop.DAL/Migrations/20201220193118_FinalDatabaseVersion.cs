@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HandiworkShop.DAL.Migrations
 {
-    public partial class DatabaseUpdate : Migration
+    public partial class FinalDatabaseVersion : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -52,7 +52,7 @@ namespace HandiworkShop.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(63)", maxLength: 63, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,13 +171,13 @@ namespace HandiworkShop.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Price = table.Column<decimal>(type: "decimal", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(11,2)", precision: 11, scale: 2, nullable: false),
                     ClientId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CommentText = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CommentRating = table.Column<int>(type: "int", nullable: true),
                     CommentCreated = table.Column<DateTime>(type: "date", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(127)", maxLength: 127, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Start = table.Column<DateTime>(type: "date", nullable: false),
                     End = table.Column<DateTime>(type: "date", nullable: true),
@@ -207,7 +207,7 @@ namespace HandiworkShop.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(127)", maxLength: 127, nullable: false),
                     Avatar = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     IsVendor = table.Column<bool>(type: "bit", nullable: false),
                     Info = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -283,7 +283,7 @@ namespace HandiworkShop.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Start = table.Column<DateTime>(type: "date", nullable: false),
                     End = table.Column<DateTime>(type: "date", nullable: true),

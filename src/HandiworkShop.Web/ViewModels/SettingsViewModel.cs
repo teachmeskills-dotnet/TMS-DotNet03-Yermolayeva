@@ -1,15 +1,23 @@
 ﻿using HandiworkShop.Common.Constants;
-using System;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.ViewModels
 {
+    /// <summary>
+    /// Settings view model.
+    /// </summary>
     public class SettingsViewModel
     {
+        /// <summary>
+        /// Profile identifier.
+        /// </summary>
         public int Id { get; set; }
+
+        /// <summary>
+        /// User identifier.
+        /// </summary>
         public string UserId { get; set; }
 
         /// <summary>
@@ -23,7 +31,7 @@ namespace HandiworkShop.Web.ViewModels
         /// </summary>
         [Display(Name = "Имя")]
         [Required(ErrorMessage = "Введите имя")]
-        [MaxLength(ConfigurationConstants.StandartLenghtForStringField, ErrorMessage ="Слишком длинное имя")]
+        [MaxLength(ConfigurationConstants.StandartLenghtForStringField, ErrorMessage = "Слишком длинное имя")]
         public string Name { get; set; }
 
         /// <summary>
@@ -36,18 +44,22 @@ namespace HandiworkShop.Web.ViewModels
         /// <summary>
         /// Avatar.
         /// </summary>
-
-        [Display(Name = "Аватар")]
         public byte[] Avatar { get; set; }
 
         /// <summary>
-        /// Tag ids.
+        /// New avatar.
+        /// </summary>
+        [Display(Name = "Изменить аватар")]
+        public IFormFile NewAvatar { get; set; }
+
+        /// <summary>
+        /// Tag identifiers.
         /// </summary>
         public int[] TagIds { get; set; }
 
         /// <summary>
         /// All tags.
         /// </summary>
-        public IList<TagViewModel> AllTags { get; set; }
+        public ICollection<TagViewModel> AllTags { get; set; }
     }
 }

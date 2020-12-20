@@ -1,55 +1,56 @@
-﻿@model HandiworkShop.Web.ViewModels.OrderEditViewModel
+﻿@using HandiworkShop.Common.Resourses
 
-@{ ViewData["Title"] = "Изменить заказ"; }
+@model HandiworkShop.Web.ViewModels.OrderEditViewModel
 
-<form method="post" asp-action="EditOrder" asp-controller="Orders">
-    <div asp-validation-summary="ModelOnly"></div>
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.EditOrder); }
+
+<form method="post" asp-action="EditOrder" asp-controller="Orders" class="template-form">
+    <div asp-validation-summary="All"></div>
+    <div class="upper-container"></div>
+
     <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title">
-        <span asp-validation-for="Title"></span>
+        <label asp-for="Title" class="template-label"></label>
+        <input asp-for="Title" class="template-input">
     </div>
     <div>
-        <label asp-for="Description"></label>
-        <input asp-for="Description">
+        <label asp-for="Description" class="template-label"></label>
+        <textarea asp-for="Description" autocomplete="off" class="template-input" rows="1"></textarea>
     </div>
     <div>
-        <label asp-for="End"></label>
-        <input asp-for="End">
-        <span asp-validation-for="End"></span>
+        <label asp-for="End" class="template-label"></label>
+        <input asp-for="End" class="template-input">
     </div>
     <div>
-        <label asp-for="Price"></label>
-        <input asp-for="Price">
-        <span asp-validation-for="Price"></span>
+        <label asp-for="Price" class="template-label"></label>
+        <input asp-for="Price" autocomplete="off" class="template-input">
     </div>
-    <div>
-        @if (Model.AllTags.Any())
-        {
+    @if (Model.AllTags.Any())
+    {
+        <div class="tags">
             @foreach (var tag in Model.AllTags)
             {
                 @if (Model.TagIds.Contains(tag.Id))
                 {
-                    <div>
-                        <label>@tag.Name</label>
-                        <input type="checkbox" name="TagIds" value=@tag.Id checked>
-                    </div>
+                    var id = "tag" + tag.Id;
+                    <input id=@id type="checkbox" name="tagIds" value=@tag.Id checked>
+                    <label for=@id>@tag.Name</label>
                 }
                 else
                 {
-                    <div>
-                        <label>@tag.Name</label>
-                        <input type="checkbox" name="TagIds" value=@tag.Id>
-                    </div>
+                    var id = "tag" + tag.Id;
+                    <input id=@id type="checkbox" name="tagIds" value=@tag.Id>
+                    <label for=@id>@tag.Name</label>
                 }
+
             }
-        }
-    </div>
+        </div>
+    }
+
+    <input type="hidden" value="@Model.ClientId" name="ClientId">
+    <input type="hidden" value="@Model.Id" name="Id">
+    <input type="hidden" value="@Model.VendorId" name="VendorId">
+
     <div>
-        <input type="hidden" value="@Model.ClientId" name="ClientId">
-        <input type="hidden" value="@Model.VendorId" name="VendorId">
-    </div>
-    <div>
-        <input type="submit" value="Создать">
+        <input type="submit" value="Сохранить" class="template-button">
     </div>
 </form>

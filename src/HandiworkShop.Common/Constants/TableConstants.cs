@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HandiworkShop.Common.Constants
+﻿namespace HandiworkShop.Common.Constants
 {
     /// <summary>
-    /// Table constants. 
+    /// Table constants.
     /// </summary>
     public static class TableConstants
     {
@@ -30,12 +26,12 @@ namespace HandiworkShop.Common.Constants
         public const string TagTable = "Tags";
 
         /// <summary>
-        /// Connection table for user tags.
+        /// User tags table.
         /// </summary>
         public const string UserTagTable = "UserTags";
 
         /// <summary>
-        /// Connection table for order tags.
+        /// Order tags table.
         /// </summary>
         public const string OrderTagTable = "OrderTags";
     }

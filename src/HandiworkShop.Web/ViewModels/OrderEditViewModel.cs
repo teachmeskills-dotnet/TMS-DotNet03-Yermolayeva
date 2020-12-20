@@ -1,13 +1,13 @@
 ﻿using HandiworkShop.Common.Constants;
-using HandiworkShop.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.ViewModels
 {
+    /// <summary>
+    /// Order edit view model.
+    /// </summary>
     public class OrderEditViewModel
     {
         public int Id { get; set; }
@@ -31,20 +31,20 @@ namespace HandiworkShop.Web.ViewModels
         public DateTime? End { get; set; }
 
         [Display(Name = "Цена")]
-        [DataType(DataType.Currency)]
+        [DisplayFormat(DataFormatString = "{0:F2}", ApplyFormatInEditMode = true)]
         [Range(0.0, Double.MaxValue, ErrorMessage = "Некорректная цена")]
         public decimal Price { get; set; }
 
         public int[] TagIds { get; set; }
 
-        public IList<TagViewModel> AllTags { get; set; }
+        public ICollection<TagViewModel> AllTags { get; set; }
     }
 
-    class OrderEndAttribute : ValidationAttribute
+    internal class OrderEndAttribute : ValidationAttribute
     {
         public override bool IsValid(object value)
         {
-            return value is null || (DateTime)value > DateTime.Now.Date;
+            return value is null || (DateTime)value >= DateTime.Now.Date;
         }
     }
 }

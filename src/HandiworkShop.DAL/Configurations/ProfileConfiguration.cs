@@ -1,14 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.VisualBasic;
-using HandiworkShop.Common.Constants;
+﻿using HandiworkShop.Common.Constants;
 using HandiworkShop.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
 namespace HandiworkShop.DAL.Configurations
 {
+    /// <summary>
+    /// EF Configuration for Profile entity.
+    /// </summary>
     public class ProfileConfiguration : IEntityTypeConfiguration<Profile>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Profile> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using HandiworkShop.BLL.Interfaces;
+using HandiworkShop.BLL.Models;
+using HandiworkShop.DAL.Entities;
 using HandiworkShop.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using HandiworkShop.BLL.Interfaces;
-using HandiworkShop.DAL.Entities;
-using HandiworkShop.BLL.Models;
-using System.Linq;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.Controllers
 {
@@ -52,7 +53,6 @@ namespace HandiworkShop.Web.Controllers
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
-
             }
             return View(model);
         }
@@ -106,25 +106,23 @@ namespace HandiworkShop.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-
             if (ModelState.IsValid)
             {
                 var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
                 var result = await _accountManager.ChangePasswordAsync(userId, model.OldPassword, model.NewPassword);
 
-                if (!result.Succeeded)
+                if (result.Succeeded)
                 {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
+                    return RedirectToAction("Settings", "Account");
                 }
-                return RedirectToAction("Settings", "Account");
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
             return View(model);
         }
 
-        //Add tag editing
         [HttpGet]
         public async Task<IActionResult> Settings()
         {
@@ -145,7 +143,6 @@ namespace HandiworkShop.Web.Controllers
                         Name = tag.Name
                     });
                 }
-               
             }
 
             var settingsViewModel = new SettingsViewModel()
@@ -156,7 +153,8 @@ namespace HandiworkShop.Web.Controllers
                 IsVendor = profile.IsVendor,
                 UserId = profile.UserId,
                 TagIds = tagIds.ToArray(),
-                AllTags = tagViewModels
+                AllTags = tagViewModels,
+                Avatar = profile.Avatar
             };
 
             return View(settingsViewModel);
@@ -165,26 +163,52 @@ namespace HandiworkShop.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Settings(SettingsViewModel settingsViewModel)
         {
-
+            var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
             if (ModelState.IsValid)
             {
-                var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
                 var profileDto = new ProfileDto()
                 {
                     Id = settingsViewModel.Id,
                     UserId = settingsViewModel.UserId,
                     Info = settingsViewModel.Info,
-                    IsVendor = settingsViewModel.IsVendor,
                     Name = settingsViewModel.Name,
-                    Avatar = settingsViewModel.Avatar,
-                    TagIds = settingsViewModel.TagIds
+                    IsVendor = settingsViewModel.IsVendor
                 };
 
+                if (settingsViewModel.NewAvatar != null)
+                {
+                    byte[] imageData = null;
+                    using (var binaryReader = new BinaryReader(settingsViewModel.NewAvatar.OpenReadStream()))
+                    {
+                        imageData = binaryReader.ReadBytes((int)settingsViewModel.NewAvatar.Length);
+                    }
+                    profileDto.Avatar = imageData;
+                }
+
                 await _profileManager.UpdateProfileAsync(profileDto, userId);
-                await _tagManager.UpdateUserTagsAsync(userId, settingsViewModel.TagIds);
+                await _tagManager.UpdateUserTagsAsync(userId, settingsViewModel.TagIds ?? Array.Empty<int>());
 
                 return RedirectToAction("Settings", "Account");
             }
+            var allTags = (await _tagManager.GetAllTagsAsync()).ToList();
+
+            var tagViewModels = new List<TagViewModel>();
+
+            if (allTags.Any())
+            {
+                foreach (var tag in allTags)
+                {
+                    tagViewModels.Add(new TagViewModel()
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
+            }
+            settingsViewModel.AllTags = tagViewModels;
+
+            settingsViewModel.Avatar = (await _profileManager.GetProfileAsync(userId)).Avatar;
+
             return View(settingsViewModel);
         }
     }

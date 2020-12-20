@@ -1,10 +1,11 @@
 ﻿using HandiworkShop.BLL.Models;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace HandiworkShop.BLL.Interfaces
 {
+    /// <summary>
+    /// Profile manager.
+    /// </summary>
     public interface IProfileManager
     {
         /// <summary>
@@ -17,7 +18,7 @@ namespace HandiworkShop.BLL.Interfaces
         /// Get profile by user identifier.
         /// </summary>
         /// <param name="userId">User identifier.</param>
-        /// <returns>Profile data transfer objects.</returns>
+        /// <returns>Profile data transfer object.</returns>
         System.Threading.Tasks.Task<ProfileDto> GetProfileAsync(string userId);
 
         /// <summary>

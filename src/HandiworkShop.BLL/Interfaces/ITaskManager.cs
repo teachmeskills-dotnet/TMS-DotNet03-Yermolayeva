@@ -1,10 +1,12 @@
 ﻿using HandiworkShop.BLL.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace HandiworkShop.BLL.Interfaces
 {
+    /// <summary>
+    /// Task manager.
+    /// </summary>
     public interface ITaskManager
     {
         /// <summary>

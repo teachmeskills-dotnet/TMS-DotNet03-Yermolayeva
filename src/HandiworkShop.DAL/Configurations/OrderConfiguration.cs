@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using HandiworkShop.Common.Constants;
+﻿using HandiworkShop.Common.Constants;
 using HandiworkShop.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
 namespace HandiworkShop.DAL.Configurations
 {
-    class OrderConfiguration : IEntityTypeConfiguration<Order>
+    /// <summary>
+    /// EF Configuration for Order entity.
+    /// </summary>
+    public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Order> builder)
         {
             builder = builder ?? throw new ArgumentNullException(nameof(builder));
@@ -17,7 +21,8 @@ namespace HandiworkShop.DAL.Configurations
 
             builder.Property(o => o.Price)
                 .IsRequired()
-                .HasColumnType(ConfigurationConstants.DecimalFormat);
+                .HasColumnType(ConfigurationConstants.DecimalFormat)
+                .HasPrecision(11, 2);
 
             builder.Property(o => o.ClientId)
                 .IsRequired();

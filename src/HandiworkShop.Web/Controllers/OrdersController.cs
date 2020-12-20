@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HandiworkShop.BLL.Interfaces;
+﻿using HandiworkShop.BLL.Interfaces;
 using HandiworkShop.BLL.Models;
+using HandiworkShop.Common.Constants;
 using HandiworkShop.Common.Enums;
 using HandiworkShop.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.Controllers
 {
@@ -37,15 +38,14 @@ namespace HandiworkShop.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return RedirectToActionPermanent("OutgoingOrders", "Orders");
+            return RedirectToActionPermanent("Outgoing", "Orders");
         }
 
         [HttpGet]
-        public async Task<IActionResult> OutgoingOrders()
+        public async Task<IActionResult> Outgoing()
         {
             var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
             var outgoingOrders = await _orderManager.GetOutgoingOrdersAsync(userId);
-
 
             var orderViewModels = new List<OrderViewModel>();
 
@@ -67,23 +67,28 @@ namespace HandiworkShop.Web.Controllers
                             });
                         }
                     }
-
+                    var vendor = order.VendorId is null ? null : (await _profileManager.GetProfileAsync(order.VendorId));
                     orderViewModels.Add(new OrderViewModel()
                     {
                         Id = order.Id,
                         Price = order.Price,
-                        ClientId = order.ClientId,
-                        ClientUserName = await _accountManager.GetUserNameByIdAsync(order.ClientId),
-                        ClientAvatar = (await _profileManager.GetProfileAsync(order.ClientId)).Avatar,
                         Description = order.Description,
                         Title = order.Title,
                         Start = order.Start,
                         End = order.End,
                         State = order.State,
+                        ClientId = order.ClientId,
                         VendorId = order.VendorId,
-                        VendorUserName = await _accountManager.GetUserNameByIdAsync(order.VendorId),
-                        VendorAvatar = (await _profileManager.GetProfileAsync(order.VendorId)).Avatar,
-                        HasComment = order.Comment != null,
+                        VendorName = vendor is null ? null : vendor.Name,
+                        VendorUserName = order.VendorId is null ? null : await _accountManager.GetUserNameByIdAsync(order.VendorId),
+                        VendorAvatar = vendor is null ? null : vendor.Avatar,
+                        Comment = order.Comment == null ? null : new CommentViewModel()
+                        {
+                            OrderId = order.Id,
+                            Created = order.Comment.Created,
+                            Rating = order.Comment.Rating,
+                            Text = order.Comment.Text
+                        },
                         Tags = tagViewModels
                     });
                 }
@@ -92,13 +97,12 @@ namespace HandiworkShop.Web.Controllers
             return View(orderViewModels);
         }
 
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         [HttpGet]
-        public async Task<IActionResult> IncomingOrders()
+        public async Task<IActionResult> Incoming()
         {
             var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
             var incomingOrders = await _orderManager.GetIncomingOrdersAsync(userId);
-
 
             var orderViewModels = new List<OrderViewModel>();
 
@@ -139,22 +143,29 @@ namespace HandiworkShop.Web.Controllers
                             });
                         }
                     }
+                    var client = await _profileManager.GetProfileAsync(order.ClientId);
 
                     orderViewModels.Add(new OrderViewModel()
                     {
                         Id = order.Id,
                         Price = order.Price,
                         ClientUserName = await _accountManager.GetUserNameByIdAsync(order.ClientId),
-                        ClientAvatar = (await _profileManager.GetProfileAsync(order.ClientId)).Avatar,
+                        ClientName = client.Name,
+                        Comment = order.Comment == null ? null : new CommentViewModel()
+                        {
+                            OrderId = order.Id,
+                            Created = order.Comment.Created,
+                            Rating = order.Comment.Rating,
+                            Text = order.Comment.Text
+                        },
+                        ClientAvatar = client.Avatar,
                         ClientId = order.ClientId,
+                        VendorId = order.VendorId,
                         Description = order.Description,
                         Title = order.Title,
                         Start = order.Start,
                         End = order.End,
                         State = order.State,
-                        VendorId = order.VendorId,
-                        VendorUserName = await _accountManager.GetUserNameByIdAsync(order.VendorId),
-                        VendorAvatar = (await _profileManager.GetProfileAsync(order.VendorId)).Avatar,
                         Tags = tagViewModels,
                         Tasks = taskViewModels
                     });
@@ -220,19 +231,34 @@ namespace HandiworkShop.Web.Controllers
                 };
                 await _orderManager.UpdateOrderAsync(orderDto, userId);
                 await _tagManager.UpdateOrderTagsAsync(orderDto.Id, orderEditViewModel.TagIds, userId);
-                return RedirectToAction("OutgoingOrders", "Orders");
+                return RedirectToAction("Outgoing", "Orders");
             }
+            var allTags = await _tagManager.GetAllTagsAsync();
+            var allTagsViewModels = new List<TagViewModel>();
+
+            if (allTags.Any())
+            {
+                foreach (var tag in allTags)
+                {
+                    allTagsViewModels.Add(new TagViewModel()
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
+            }
+            orderEditViewModel.AllTags = allTagsViewModels;
             return View(orderEditViewModel);
         }
 
         [HttpGet]
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         public async Task<IActionResult> EditTask(int taskId)
         {
             var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
             var task = await _taskManager.GetTaskAsync(taskId, userId);
 
-            var taskEditViewModel = new TaskEditViewModel()
+            var taskEditViewModel = new TaskViewModel()
             {
                 Id = task.Id,
                 OrderId = task.OrderId,
@@ -246,8 +272,8 @@ namespace HandiworkShop.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Vendor")]
-        public async Task<IActionResult> EditTask(TaskEditViewModel taskEditViewModel)
+        [Authorize(Roles = RolesConstants.VendorRole)]
+        public async Task<IActionResult> EditTask(TaskViewModel taskEditViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -262,7 +288,7 @@ namespace HandiworkShop.Web.Controllers
                     End = taskEditViewModel.End
                 };
                 await _taskManager.UpdateTaskAsync(taskDto, userId);
-                return RedirectToAction("IncomingOrders", "Orders");
+                return RedirectToAction("Incoming", "Orders");
             }
             return View(taskEditViewModel);
         }
@@ -296,7 +322,7 @@ namespace HandiworkShop.Web.Controllers
                     Text = commentViewModel.Text
                 };
                 await _orderManager.UpdateOrderCommentAsync(commentDto, userId);
-                return RedirectToAction("OutgoingOrders", "Orders");
+                return RedirectToAction("Outgoing", "Orders");
             }
             return View(commentViewModel);
         }
@@ -344,20 +370,35 @@ namespace HandiworkShop.Web.Controllers
                     Price = orderEditViewModel.Price,
                     ClientId = userId,
                     VendorId = orderEditViewModel.VendorId,
-                    TagIds = orderEditViewModel.TagIds ?? new int[0],
+                    TagIds = orderEditViewModel.TagIds ?? Array.Empty<int>(),
                     End = orderEditViewModel.End
                 };
                 await _orderManager.CreateAsync(orderDto);
-                return RedirectToAction("OutgoingOrders", "Orders");
+                return RedirectToAction("Outgoing", "Orders");
             }
+            var allTags = await _tagManager.GetAllTagsAsync();
+            var allTagsViewModels = new List<TagViewModel>();
+
+            if (allTags.Any())
+            {
+                foreach (var tag in allTags)
+                {
+                    allTagsViewModels.Add(new TagViewModel()
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
+            }
+            orderEditViewModel.AllTags = allTagsViewModels;
             return View(orderEditViewModel);
         }
 
         [HttpGet]
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         public IActionResult CreateTask(int orderId)
         {
-            var taskEditViewModel = new TaskEditViewModel()
+            var taskEditViewModel = new TaskViewModel()
             {
                 OrderId = orderId
             };
@@ -366,8 +407,8 @@ namespace HandiworkShop.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Vendor")]
-        public async Task<IActionResult> CreateTask(TaskEditViewModel taskEditViewModel)
+        [Authorize(Roles = RolesConstants.VendorRole)]
+        public async Task<IActionResult> CreateTask(TaskViewModel taskEditViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -381,7 +422,7 @@ namespace HandiworkShop.Web.Controllers
                     End = taskEditViewModel.End
                 };
                 await _taskManager.CreateAsync(taskDto, userId);
-                return RedirectToAction("IncomingOrders", "Orders");
+                return RedirectToAction("Incoming", "Orders");
             }
             return View(taskEditViewModel);
         }
@@ -412,7 +453,7 @@ namespace HandiworkShop.Web.Controllers
                     Text = commentViewModel.Text
                 };
                 await _orderManager.CreateOrderCommentAsync(commentDto, userId);
-                return RedirectToAction("OutgoingOrders", "Orders");
+                return RedirectToAction("Outgoing", "Orders");
             }
             return View(commentViewModel);
         }
@@ -428,10 +469,10 @@ namespace HandiworkShop.Web.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("OutgoingOrders", "Orders");
+            return RedirectToAction("Outgoing", "Orders");
         }
 
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         [HttpPost]
         public async Task<IActionResult> DeleteTask(int taskId)
         {
@@ -439,10 +480,10 @@ namespace HandiworkShop.Web.Controllers
 
             await _taskManager.DeleteAsync(taskId, userId);
 
-            return RedirectToAction("IncomingOrders", "Orders");
+            return RedirectToAction("Incoming", "Orders");
         }
 
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         [HttpPost]
         public async Task<IActionResult> CompleteTask(int taskId)
         {
@@ -450,10 +491,10 @@ namespace HandiworkShop.Web.Controllers
 
             await _taskManager.UpdateTaskStateAsync(taskId, userId);
 
-            return RedirectToAction("IncomingOrders", "Orders");
+            return RedirectToAction("Incoming", "Orders");
         }
 
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         [HttpPost]
         public async Task<IActionResult> CompleteOrder(int orderId)
         {
@@ -461,7 +502,7 @@ namespace HandiworkShop.Web.Controllers
 
             await _orderManager.UpdateOrderStateAsync(orderId, StateType.Completed, userId);
 
-            return RedirectToAction("IncomingOrders", "Orders");
+            return RedirectToAction("Incoming", "Orders");
         }
 
         [HttpPost]
@@ -471,10 +512,10 @@ namespace HandiworkShop.Web.Controllers
 
             await _orderManager.DeleteAsync(orderId, userId);
 
-            return RedirectToAction("OutgoingOrders", "Orders");
+            return RedirectToAction("Outgoing", "Orders");
         }
 
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         [HttpPost]
         public async Task<IActionResult> AcceptOrder(int orderId, string returnUrl)
         {
@@ -486,7 +527,7 @@ namespace HandiworkShop.Web.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Orders");
+            return RedirectToAction("Incoming", "Orders");
         }
 
         [HttpPost]
@@ -496,10 +537,10 @@ namespace HandiworkShop.Web.Controllers
 
             await _orderManager.UpdateOrderStateAsync(orderId, StateType.CanceledByClient, userId);
 
-            return RedirectToAction("OutGoingOrders", "Orders");
+            return RedirectToAction("Outgoing", "Orders");
         }
 
-        [Authorize(Roles = "Vendor")]
+        [Authorize(Roles = RolesConstants.VendorRole)]
         [HttpPost]
         public async Task<IActionResult> CancelIncomingOrder(int orderId)
         {
@@ -507,7 +548,7 @@ namespace HandiworkShop.Web.Controllers
 
             await _orderManager.UpdateOrderStateAsync(orderId, StateType.CanceledByVendor, userId);
 
-            return RedirectToAction("IncomingOrders", "Orders");
+            return RedirectToAction("Incoming", "Orders");
         }
     }
-} 
+}

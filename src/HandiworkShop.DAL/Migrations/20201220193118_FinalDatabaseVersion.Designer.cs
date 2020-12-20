@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HandiworkShop.DAL.Migrations
 {
     [DbContext(typeof(HandiworkShopContext))]
-    [Migration("20201129125910_DatabaseUpdate")]
-    partial class DatabaseUpdate
+    [Migration("20201220193118_FinalDatabaseVersion")]
+    partial class FinalDatabaseVersion
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -113,7 +113,8 @@ namespace HandiworkShop.DAL.Migrations
                         .HasColumnType("date");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal");
+                        .HasPrecision(11, 2)
+                        .HasColumnType("decimal(11,2)");
 
                     b.Property<DateTime>("Start")
                         .HasColumnType("date");
@@ -123,8 +124,8 @@ namespace HandiworkShop.DAL.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasMaxLength(127)
+                        .HasColumnType("nvarchar(127)");
 
                     b.Property<string>("VendorId")
                         .HasColumnType("nvarchar(450)");
@@ -181,8 +182,8 @@ namespace HandiworkShop.DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasMaxLength(127)
+                        .HasColumnType("nvarchar(127)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -205,8 +206,8 @@ namespace HandiworkShop.DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasMaxLength(63)
+                        .HasColumnType("nvarchar(63)");
 
                     b.HasKey("Id");
 
@@ -237,8 +238,8 @@ namespace HandiworkShop.DAL.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 

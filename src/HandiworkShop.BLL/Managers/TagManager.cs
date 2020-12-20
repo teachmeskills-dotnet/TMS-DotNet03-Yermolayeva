@@ -1,15 +1,16 @@
 ﻿using HandiworkShop.BLL.Interfaces;
 using HandiworkShop.BLL.Models;
+using HandiworkShop.Common.Resourses;
 using HandiworkShop.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HandiworkShop.BLL.Managers
 {
+    ///<inheritdoc cref="ITagManager"/>
     public class TagManager : ITagManager
     {
         private readonly IRepository<Tag> _repositoryTag;
@@ -18,8 +19,8 @@ namespace HandiworkShop.BLL.Managers
         private readonly IRepository<Order> _repositoryOrder;
 
         public TagManager(
-            IRepository<Tag> repositoryTag, 
-            IRepository<UserTag> repositoryUserTag, 
+            IRepository<Tag> repositoryTag,
+            IRepository<UserTag> repositoryUserTag,
             IRepository<OrderTag> repositoryOrderTag,
             IRepository<Order> repositoryOrder)
         {
@@ -47,7 +48,7 @@ namespace HandiworkShop.BLL.Managers
             var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == id);
             if (tag is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TagNotFound);
             }
 
             _repositoryTag.Delete(tag);
@@ -59,7 +60,7 @@ namespace HandiworkShop.BLL.Managers
             var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == id);
             if (tag is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TagNotFound);
             }
 
             var tagDto = new TagDto
@@ -128,7 +129,7 @@ namespace HandiworkShop.BLL.Managers
                         Name = tag.Name
                     });
                 }
-            }        
+            }
 
             return tagDtos;
         }
@@ -140,7 +141,7 @@ namespace HandiworkShop.BLL.Managers
             var tag = await _repositoryTag.GetEntityAsync(tag => tag.Id == tagDto.Id);
             if (tag is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.TagNotFound);
             }
 
             static bool ValidateToUpdate(Tag tag, TagDto tagDto)
@@ -165,18 +166,19 @@ namespace HandiworkShop.BLL.Managers
 
         public async System.Threading.Tasks.Task UpdateUserTagsAsync(string userId, IList<int> tagIds)
         {
+            tagIds = tagIds ?? new List<int>();
             var userTags = await _repositoryUserTag
                 .GetAll()
                 .AsNoTracking()
                 .Where(userTag => userTag.UserId == userId)
                 .ToListAsync();
 
+            bool updated = false;
+
             if (userTags.Any())
             {
-                foreach (var tag in userTags)
-                {
-                    _repositoryUserTag.Delete(tag);
-                }
+                _repositoryUserTag.DeleteRange(userTags);
+                updated = true;
             }
 
             if (tagIds.Any())
@@ -189,18 +191,24 @@ namespace HandiworkShop.BLL.Managers
                         UserId = userId
                     });
                 }
+                updated = true;
             }
 
-            await _repositoryUserTag.SaveChangesAsync();
+            if (updated)
+            {
+                await _repositoryUserTag.SaveChangesAsync();
+            }
         }
 
         public async System.Threading.Tasks.Task UpdateOrderTagsAsync(int orderId, IList<int> tagIds, string userId)
         {
+            tagIds = tagIds ?? new List<int>();
+
             var order = await _repositoryOrder.GetEntityAsync(order => order.Id == orderId && order.ClientId == userId);
 
             if (order is null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(ErrorResource.OrderNotFound);
             }
 
             var orderTags = await _repositoryOrderTag
@@ -209,12 +217,12 @@ namespace HandiworkShop.BLL.Managers
                .Where(orderTag => orderTag.OrderId == orderId)
                .ToListAsync();
 
+            bool updated = false;
+
             if (orderTags.Any())
             {
-                foreach (var tag in orderTags)
-                {
-                    _repositoryOrderTag.Delete(tag);
-                }
+                _repositoryOrderTag.DeleteRange(orderTags);
+                updated = true;
             }
 
             if (tagIds.Any())
@@ -227,9 +235,13 @@ namespace HandiworkShop.BLL.Managers
                         TagId = tagId
                     });
                 }
+                updated = true;
             }
 
-            await _repositoryOrderTag.SaveChangesAsync();
+            if (updated)
+            {
+                await _repositoryOrderTag.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<TagDto>> GetAllTagsAsync()

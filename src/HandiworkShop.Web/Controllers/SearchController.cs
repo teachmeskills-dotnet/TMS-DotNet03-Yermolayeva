@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HandiworkShop.BLL.Interfaces;
-using HandiworkShop.BLL.Models;
+﻿using HandiworkShop.BLL.Interfaces;
+using HandiworkShop.Common.Constants;
 using HandiworkShop.Common.Enums;
 using HandiworkShop.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HandiworkShop.Web.Controllers
 {
@@ -19,7 +19,6 @@ namespace HandiworkShop.Web.Controllers
         private readonly IOrderManager _orderManager;
         private readonly ITagManager _tagManager;
 
-
         public SearchController(
             IAccountManager accountManager,
             IProfileManager profileManager,
@@ -30,19 +29,19 @@ namespace HandiworkShop.Web.Controllers
             _profileManager = profileManager ?? throw new ArgumentNullException(nameof(profileManager));
             _orderManager = orderManager ?? throw new ArgumentNullException(nameof(orderManager));
             _tagManager = tagManager ?? throw new ArgumentNullException(nameof(tagManager));
-
         }
+
         public IActionResult Index()
         {
-            return RedirectToActionPermanent("OutgoingOrders", "Orders");
+            return RedirectToActionPermanent("Profile", "Search");
         }
-        public async Task<IActionResult> SearchProfile(string searchString, IList<int> tagIds)
+
+        public async Task<IActionResult> Profile(string searchString, IList<int> tagIds)
         {
             var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
             var profileViewModels = new List<ProfileViewModel>();
 
-            var profiles = (List<ProfileDto>)await _profileManager.GetProfilesByTagsAsync(tagIds);
-            profiles = profiles.Where(profile => profile.UserId != userId).ToList();
+            var profiles = (await _profileManager.GetProfilesByTagsAsync(tagIds)).Where(profile => profile.UserId != userId).ToList();
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -93,33 +92,34 @@ namespace HandiworkShop.Web.Controllers
                         OrdersCompleted = ordersCompleted
                     });
                 }
-
             }
 
-            var allTags = await _tagManager.GetAllTagsAsync();
             var allTagsViewModels = new List<TagViewModel>();
+            var allTags = await _tagManager.GetAllTagsAsync();
 
-            foreach (var tag in allTags)
+            if (allTags.Any())
             {
-                allTagsViewModels.Add(new TagViewModel()
+                foreach (var tag in allTags)
                 {
-                    Id = tag.Id,
-                    Name = tag.Name
-                });
+                    allTagsViewModels.Add(new TagViewModel()
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
             }
             return View((
                 allTagsViewModels,
                 profileViewModels));
         }
 
-        [Authorize(Roles = "Vendor")]
-        public async Task<IActionResult> SearchOrder(string searchString, IList<int> tagIds)
+        [Authorize(Roles = RolesConstants.VendorRole)]
+        public async Task<IActionResult> Order(string searchString, IList<int> tagIds)
         {
             var userId = await _accountManager.GetUserIdByNameAsync(User.Identity.Name);
             var orderViewModels = new List<OrderViewModel>();
 
-            var orders = (List<OrderDto>)await _orderManager.GetOrdersByTagsAsync(tagIds);
-            orders = orders.Where(order => order.ClientId != userId).ToList();
+            var orders = (await _orderManager.GetOrdersByTagsAsync(tagIds)).Where(order => order.ClientId != userId).ToList();
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -145,34 +145,39 @@ namespace HandiworkShop.Web.Controllers
                         }
                     }
 
+                    var client = await _profileManager.GetProfileAsync(order.ClientId);
+
                     orderViewModels.Add(new OrderViewModel()
                     {
                         Id = order.Id,
                         ClientUserName = await _accountManager.GetUserNameByIdAsync(order.ClientId),
-                        ClientAvatar = (await _profileManager.GetProfileAsync(order.ClientId)).Avatar,
+                        ClientName = client.Name,
+                        ClientAvatar = client.Avatar,
                         Description = order.Description,
                         End = order.End,
                         Price = order.Price,
                         Start = order.Start,
                         State = order.State,
                         Title = order.Title,
-                        VendorId = order.VendorId,
-                        Tags = tagViewModels
+                        Tags = tagViewModels,
+                        ClientId = order.ClientId
                     });
                 }
-
             }
 
-            var allTags = await _tagManager.GetAllTagsAsync();
             var allTagsViewModels = new List<TagViewModel>();
+            var allTags = await _tagManager.GetAllTagsAsync();
 
-            foreach(var tag in allTags)
+            if (allTags.Any())
             {
-                allTagsViewModels.Add(new TagViewModel()
+                foreach (var tag in allTags)
                 {
-                    Id = tag.Id,
-                    Name = tag.Name
-                });
+                    allTagsViewModels.Add(new TagViewModel()
+                    {
+                        Id = tag.Id,
+                        Name = tag.Name
+                    });
+                }
             }
             return View((
                 allTagsViewModels,

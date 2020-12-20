@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using HandiworkShop.DAL.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HandiworkShop.DAL.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace HandiworkShop.BLL.Interfaces
 {
@@ -26,7 +22,7 @@ namespace HandiworkShop.BLL.Interfaces
         /// Get user identifier by name.
         /// </summary>
         /// <param name="name">User name.</param>
-        /// <returns>Identifier (GUID).</returns>
+        /// <returns>User identifier (GUID).</returns>
         System.Threading.Tasks.Task<string> GetUserIdByNameAsync(string name);
 
         /// <summary>
@@ -40,7 +36,7 @@ namespace HandiworkShop.BLL.Interfaces
         /// Change password.
         /// </summary>
         /// <param name="userId">User identifier.</param>
-        /// <returns>Identity result and user.</returns>
+        /// <returns>Identity result.</returns>
         System.Threading.Tasks.Task<IdentityResult> ChangePasswordAsync(string userId, string oldPassword, string newPassword);
     }
 }

@@ -1,10 +1,11 @@
 ﻿using HandiworkShop.BLL.Models;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace HandiworkShop.BLL.Interfaces
 {
+    /// <summary>
+    /// Tag manager.
+    /// </summary>
     public interface ITagManager
     {
         /// <summary>
@@ -17,7 +18,7 @@ namespace HandiworkShop.BLL.Interfaces
         /// Get tag by identifier.
         /// </summary>
         /// <param name="id">Identifier.</param>
-        /// <returns>Tag data transfer objects.</returns>
+        /// <returns>Tag data transfer object.</returns>
         System.Threading.Tasks.Task<TagDto> GetTagAsync(int id);
 
         /// <summary>

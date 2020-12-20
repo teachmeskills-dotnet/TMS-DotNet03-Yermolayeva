@@ -1,33 +1,33 @@
-﻿@model HandiworkShop.Web.ViewModels.TaskEditViewModel
+﻿@using HandiworkShop.Common.Resourses
+@model HandiworkShop.Web.ViewModels.TaskViewModel
 
-@{ ViewData["Title"] = "Изменить задание"; }
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.EditTask); }
 
-<form method="post" asp-action="EditTask" asp-controller="Orders">
-    <div asp-validation-summary="ModelOnly"></div>
-    <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title">
-        <span asp-validation-for="Title"></span>
-    </div>
-    <div>
-        <label asp-for="Description"></label>
-        <input asp-for="Description">
-    </div>
-    <div>
-        <label asp-for="Start"></label>
-        <input asp-for="Start">
-        <span asp-validation-for="Start"></span>
-    </div>
-    <div>
-        <label asp-for="End"></label>
-        <input asp-for="End">
-        <span asp-validation-for="End"></span>
-    </div>
+<form method="post" asp-action="EditTask" asp-controller="Orders" class="template-form">
+    <div asp-validation-summary="All"></div>
+    <div class="upper-container"></div>
 
     <div>
+        <label asp-for="Title" class="template-label"></label>
+        <input asp-for="Title" autocomplete="off" class="template-input">
+    </div>
+    <div>
+        <label asp-for="Description" class="template-label"></label>
+        <textarea asp-for="Description" autocomplete="off" class="template-input" rows="1"></textarea>
+    </div>
+    <div>
+        <label asp-for="Start" class="template-label"></label>
+        <input asp-for="Start" class="template-input">
+    </div>
+    <div>
+        <label asp-for="End" class="template-label"></label>
+        <input asp-for="End" class="template-input">
+    </div>
+
         <input type="hidden" value="@Model.OrderId" name="OrderId">
-    </div>
+        <input type="hidden" value="@Model.Id" name="Id">
+
     <div>
-        <input type="submit" value="Сохранить">
+        <input type="submit" value="Сохранить" class="template-button">
     </div>
 </form>

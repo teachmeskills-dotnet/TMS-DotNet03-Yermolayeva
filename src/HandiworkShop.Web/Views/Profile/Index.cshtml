@@ -1,64 +1,88 @@
-﻿@model HandiworkShop.Web.ViewModels.ProfileViewModel
+﻿@using HandiworkShop.Common.Resourses
+@model HandiworkShop.Web.ViewModels.ProfileViewModel
 
-@{
-    ViewData["Title"] = @Model.Name;
-}
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, Model.Name); }
 
 <div class="profile">
-    <div class="info">
-        <div class="avatar">
-            @if (Model.Avatar != null)
-            {
-                <img src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Avatar))">
-            }
-            else
-            {
-                <img src="~/images/account_circle.png">
-            }
-        </div>
-        @if (Model.IsVendor && Model.UserName != User.Identity.Name)
-        {<form method="get" asp-controller="Orders" asp-action="NewOrder">
-                <button type="submit">Сделать заказ<img class="search__image" src="~/images/search.png" alt="search"></button>
-            </form>
-        }
-        <p class="name">@Model.Name</p>
-        <p class="username">@Model.UserName</p>
-        <p class="info">@Model.Info</p>
-        <p class="created">@Model.Created.ToShortDateString()</p>
-    </div>
-    <div class="tags">
-
-        @if (Model.Tags.Any())
+    <div class="avatar">
+        @if (Model.Avatar != null)
         {
-            foreach (var tag in Model.Tags)
-            {
-                <div class="tag">
-                    <p>@tag.Name</p>
-                </div>
-            }
+            <img src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Avatar))">
         }
         else
         {
-            <h1>No tags(</h1>
+            <img src="~/images/default_avatar.jpg">
         }
-    </div>
-</div>
-
-<div class="comments">
-
-    @if (Model.Comments.Any())
-    {
-        foreach (var comment in Model.Comments)
+        @if (Model.IsVendor && Model.UserName != User.Identity.Name)
         {
-    <div class="comment">
-        <div class="author">@comment.AuthorName @comment.Created</div>
-        <div class="text">@comment.Text</div>
-        <div class="rating">@comment.Rating</div>
-    </div>
+            <form method="get" asp-controller="Orders" asp-action="CreateOrder">
+                <button type="submit" class="template-button">Сделать заказ</button>
+            </form>
         }
-    }
-    else
-    {
-        <h1>No comments(</h1>
-    }
+        else if (Model.UserName == User.Identity.Name)
+        {
+            <form method="get" asp-controller="Account" asp-action="Settings">
+                <button type="submit" class="template-button">Настройки профиля</button>
+            </form>
+        }
+    </div>
+    <div class="info">
+
+        <p class="name">@Model.Name</p>
+        <p class="username">@('@')@Model.UserName</p>
+        <pre>@Model.Info</pre>
+        <div class="tags">
+
+            @if (Model.IsVendor && Model.Tags.Any())
+            {
+                foreach (var tag in Model.Tags)
+                {
+                    <a asp-action="Profile" asp-controller="Search" asp-route-tagIds=@tag.Id>
+                        <p>@tag.Name</p>
+                    </a>
+                }
+            }
+        </div>
+    </div>
 </div>
+<div class="break-line"></div>
+
+@if (Model.IsVendor && Model.Comments.Any())
+{
+    <p>Комментарии</p>
+    <div class="break-line"></div>
+
+    <div class="comments">
+
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="comment">
+                <div class="avatar">
+                    <a asp-controller="Profile" asp-action="Index" asp-route-userName=@comment.AuthorUserName>
+                        @if (comment.AuthorAvatar != null)
+                        {
+                            <img src="data:image/jpeg;base64,@(Convert.ToBase64String(comment.AuthorAvatar))">
+                        }
+                        else
+                        {
+                            <img src="~/images/default_avatar.jpg">
+                        }
+                    </a>
+                </div>
+                <div class="comment-text">
+                    <p class="author">@comment.AuthorName</p>
+                    <p>@comment.Created.ToShortDateString()</p>
+                    @for (int i = 5; i > comment.Rating; i--)
+                    {
+                        <div class="star">★</div>
+                    }
+                    @for (int i = comment.Rating; i >= 1; i--)
+                    {
+                        <div class="star filled">★</div>
+                    }
+                    <pre class="text">@comment.Text</pre>
+                </div>
+            </div>
+        }
+    </div>
+}

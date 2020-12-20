@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HandiworkShop.DAL.Entities
+﻿namespace HandiworkShop.DAL.Entities
 {
+    /// <summary>
+    /// Entity Task.
+    /// </summary>
     public class Task : TaskBase
     {
+        /// <summary>
+        /// Order identifier.
+        /// </summary>
         public int OrderId { get; set; }
 
         /// <summary>

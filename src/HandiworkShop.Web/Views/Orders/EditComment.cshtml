@@ -1,33 +1,36 @@
-﻿@model HandiworkShop.Web.ViewModels.CommentViewModel
+﻿@using HandiworkShop.Common.Resourses
+@model HandiworkShop.Web.ViewModels.CommentViewModel
 
-@{ ViewData["Title"] = "Изменить комментарий"; }
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.EditComment); }
 
-<form method="post" asp-action="EditComment" asp-controller="Orders">
-    <div asp-validation-summary="ModelOnly"></div>
+<form method="post" asp-action="EditComment" asp-controller="Orders" class="template-form comment-form">
+    <div asp-validation-summary="All"></div>
+    <div class="upper-container"></div>
+
     <div>
-        @for (int i = 1; i <= 5; i++)
-        {
-            var id = "star" + i;
-            @if (i == Model.Rating)
+        <label asp-for="Text" class="template-label"></label>
+        <textarea asp-for="Text" autocomplete="off" class="template-input" rows="1"></textarea>
+        <div class="rating">
+            @for (int i = 5; i >= 1; i--)
             {
-                <input type="radio" id=@id name="Rating" value=@i checked>
-                <label for=@id title="text">@i звёзд</label>
+                var id = "star" + i;
+                @if (i == Model.Rating)
+                {
+                    <input type="radio" id=@id name="Rating" value=@i checked title=@i>
+                    <label for=@id title="text"></label>
+                }
+                else
+                {
+                    <input type="radio" id=@id name="Rating" value=@i title=@i>
+                    <label for=@id title="text"></label>
+                }
             }
-            else
-            {
-                <input type="radio" id=@id name="Rating" value=@i>
-                <label for=@id title="text">@i звёзд</label>
-            }
-        }
+        </div>
     </div>
-    <div>
-        <label asp-for="Text"></label>
-        <input asp-for="Text">
-    </div>
-    <div>
+
         <input type="hidden" value="@Model.OrderId" name="OrderId">
-    </div>
+
     <div>
-        <input type="submit" value="Сохранить">
+        <input type="submit" value="Сохранить" class="template-button">
     </div>
 </form>
