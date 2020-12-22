@@ -1,0 +1,331 @@
+﻿@using HandiworkShop.Common.Resourses
+@using HandiworkShop.Common.Enums
+@using HandiworkShop.Common.Constants
+
+@model List<HandiworkShop.Web.ViewModels.OrderViewModel>
+
+@{ ViewData["Title"] = string.Format(PageTitleResource.StringFormat, PageTitleResource.SiteName, PageTitleResource.OutgoingOrders); }
+<form method="get" asp-controller="Orders" asp-action="CreateOrder">
+    <button type="submit" class="template-button">Новый заказ</button>
+</form>
+@if (User.IsInRole(RolesConstants.VendorRole))
+{
+    <a class="arrowed-link" asp-action="Incoming" asp-controller="Orders">Ко входящим заказам ➔</a>
+}
+<div class="break-line"></div>
+<p>Завершенные заказы</p>
+<div class="break-line"></div>
+<div class="orders horizontal">
+    @foreach (var order in Model.Where(order => order.State == StateType.Completed))
+    {
+        <div class="order-card">
+            <div class="client-info">
+                <p>Мастер</p>
+                <a asp-controller="profile" asp-action="index" asp-route-username=@order.VendorUserName>
+                    <div class="avatar">
+                        @if (order.VendorAvatar != null)
+                        {
+                            <img class="avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(order.VendorAvatar))">
+                        }
+                        else
+                        {
+                            <img class="avatar" src="~/images/default_avatar.jpg">
+                        }
+                    </div>
+                </a>
+                <p class="name">@order.VendorName</p>
+                <p class="username">@('@')@order.VendorUserName</p>
+            </div>
+            <h3 class="name">@order.Title</h3>
+            <pre>@order.Description</pre>
+            @if (order.End is null)
+            {
+                <p>Срок выполнения не определен</p>
+            }
+            else
+            {
+                <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+            }
+            <p>Цена: @order.Price BYN</p>
+            <div class="tags">
+                @if (order.Tags.Any())
+                {
+                    foreach (var tag in order.Tags)
+                    {
+                        <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                            <p>@tag.Name</p>
+                        </a>
+                    }
+                }
+            </div>
+            @if (order.Comment != null)
+            {
+                <form method="post" asp-controller="Orders" asp-action="DeleteComment">
+                    <button type="submit" name="orderId" value=@order.Id class="template-button">Удалить комментарий</button>
+                </form>
+                <form method="get" asp-controller="Orders" asp-action="EditComment">
+                    <button type="submit" name="orderId" value=@order.Id class="template-button">Изменить комментарий</button>
+                </form>
+            }
+            else
+            {
+                <form method="get" asp-controller="Orders" asp-action="CreateComment">
+                    <button type="submit" name="orderId" value=@order.Id class="template-button">Добавить комментарий</button>
+                </form>
+            }
+        </div>
+    }
+</div>
+<div class="break-line"></div>
+<p>Ожидающие подтверждения заказы</p>
+<div class="break-line"></div>
+<div class="orders horizontal">
+    @foreach (var order in Model.Where(order => order.State == StateType.AwaitingConfirm))
+    {
+        <div class="order-card">
+            <div class="client-info">
+                <p>Мастер</p>
+                <a asp-controller="profile" asp-action="index" asp-route-username=@order.VendorUserName>
+                    <div class="avatar">
+                        @if (order.VendorAvatar != null)
+                        {
+                            <img class="avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(order.VendorAvatar))">
+                        }
+                        else
+                        {
+                            <img class="avatar" src="~/images/default_avatar.jpg">
+                        }
+                    </div>
+                </a>
+                <p class="name">@order.VendorName</p>
+                <p class="username">@('@')@order.VendorUserName</p>
+            </div>
+            <h3 class="name">@order.Title</h3>
+            <pre>@order.Description</pre>
+            @if (order.End is null)
+            {
+                <p>Срок выполнения не определен</p>
+            }
+            else
+            {
+                <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+            }
+            <p>Цена: @order.Price BYN</p>
+            <div class="tags">
+                @if (order.Tags.Any())
+                {
+                    foreach (var tag in order.Tags)
+                    {
+                        <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                            <p>@tag.Name</p>
+                        </a>
+                    }
+                }
+            </div>
+            <form method="post" asp-controller="Orders" asp-action="CancelOutgoingOrder">
+                <button type="submit" name="orderId" value=@order.Id class="template-button">Отменить заказ</button>
+            </form>
+            <form method="get" asp-controller="Orders" asp-action="EditOrder">
+                <button type="submit" name="orderId" value=@order.Id class="template-button">Изменить заказ</button>
+            </form>
+        </div>
+    }
+</div>
+<div class="break-line"></div>
+<p>Ожидающие мастера заказы</p>
+<div class="break-line"></div>
+<div class="orders horizontal">
+    @foreach (var order in Model.Where(order => order.State == StateType.AwaitingVendor))
+    {
+        <div class="order-card">
+            <div class="client-info"></div>
+            <h3 class="name">@order.Title</h3>
+            <pre>@order.Description</pre>
+            @if (order.End is null)
+            {
+                <p>Срок выполнения не определен</p>
+            }
+            else
+            {
+                <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+            }
+            <p>Цена: @order.Price BYN</p>
+            <div class="tags">
+                @if (order.Tags.Any())
+                {
+                    foreach (var tag in order.Tags)
+                    {
+                        <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                            <p>@tag.Name</p>
+                        </a>
+                    }
+                }
+            </div>
+            <form method="post" asp-controller="Orders" asp-action="CancelOutgoingOrder">
+                <button type="submit" name="orderId" value=@order.Id class="template-button">Отменить заказ</button>
+            </form>
+            <form method="get" asp-controller="Orders" asp-action="EditOrder">
+                <button type="submit" name="orderId" value=@order.Id class="template-button">Изменить заказ</button>
+            </form>
+        </div>
+    }
+</div>
+<div class="break-line"></div>
+<p>Отмененные заказы</p>
+<div class="break-line"></div>
+<div class="orders horizontal">
+    @foreach (var order in Model.Where(order => order.State == StateType.CanceledByClient))
+    {
+        <div class="order-card">
+            <div class="client-info">
+                @if (order.VendorId != null)
+                {
+                    <p>Мастер</p>
+                    <a asp-controller="profile" asp-action="index" asp-route-username=@order.VendorUserName>
+                        <div class="avatar">
+                            @if (order.VendorAvatar != null)
+                            {
+                                <img class="avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(order.VendorAvatar))">
+                            }
+                            else
+                            {
+                                <img class="avatar" src="~/images/default_avatar.jpg">
+                            }
+                        </div>
+                    </a>
+                    <p class="name">@order.VendorName</p>
+                    <p class="username">@('@')@order.VendorUserName</p>
+                }
+        </div>
+        <h3 class="name">@order.Title</h3>
+        <pre>@order.Description</pre>
+        @if (order.End is null)
+        {
+            <p>Срок выполнения не определен</p>
+        }
+        else
+        {
+            <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+        }
+        <p>Цена: @order.Price BYN</p>
+        <div class="tags">
+            @if (order.Tags.Any())
+            {
+                foreach (var tag in order.Tags)
+                {
+                    <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                        <p>@tag.Name</p>
+                    </a>
+                }
+            }
+        </div>
+        <form method="post" asp-controller="Orders" asp-action="DeleteOrder">
+            <button type="submit" class="template-button" name="orderId" value=@order.Id>Удалить заказ</button>
+        </form>
+    </div>
+}
+</div>
+<div class="break-line"></div>
+<p>Отмененные мастером заказы</p>
+<div class="break-line"></div>
+<div class="orders horizontal">
+    @foreach (var order in Model.Where(order => order.State == StateType.CanceledByVendor))
+    {
+        <div class="order-card">
+            <div class="client-info">
+                <p>Мастер</p>
+                <a asp-controller="profile" asp-action="index" asp-route-username=@order.VendorUserName>
+                    <div class="avatar">
+                        @if (order.VendorAvatar != null)
+                        {
+                            <img class="avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(order.VendorAvatar))">
+                        }
+                        else
+                        {
+                            <img class="avatar" src="~/images/default_avatar.jpg">
+                        }
+                    </div>
+                </a>
+                <p class="name">@order.VendorName</p>
+                <p class="username">@('@')@order.VendorUserName</p>
+            </div>
+            <h3 class="name">@order.Title</h3>
+            <pre>@order.Description</pre>
+            @if (order.End is null)
+            {
+                <p>Срок выполнения не определен</p>
+            }
+            else
+            {
+                <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+            }
+            <p>Цена: @order.Price BYN</p>
+            <div class="tags">
+                @if (order.Tags.Any())
+                {
+                    foreach (var tag in order.Tags)
+                    {
+                        <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                            <p>@tag.Name</p>
+                        </a>
+                    }
+                }
+            </div>
+            <form method="post" asp-controller="Orders" asp-action="DeleteOrder">
+                <button type="submit" name="orderId" value=@order.Id class="template-button">Удалить заказ</button>
+            </form>
+        </div>
+    }
+</div>
+<div class="break-line"></div>
+<p>Выполняемые заказы</p>
+<div class="break-line"></div>
+<div class="orders horizontal">
+    @foreach (var order in Model.Where(order => order.State == StateType.InProcess))
+    {
+        <div class="order-card">
+            <div class="client-info">
+                <p>Мастер</p>
+                <a asp-controller="profile" asp-action="index" asp-route-username=@order.VendorUserName>
+                    <div class="avatar">
+                        @if (order.VendorAvatar != null)
+                        {
+                            <img class="avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(order.VendorAvatar))">
+                        }
+                        else
+                        {
+                            <img class="avatar" src="~/images/default_avatar.jpg">
+                        }
+                    </div>
+                </a>
+                <p class="name">@order.VendorName</p>
+                <p class="username">@('@')@order.VendorUserName</p>
+            </div>
+            <h3 class="name">@order.Title</h3>
+            <pre>@order.Description</pre>
+            @if (order.End is null)
+            {
+                <p>Срок выполнения не определен</p>
+            }
+            else
+            {
+                <p>Срок выполнения: @order.End.Value.ToShortDateString()</p>
+            }
+            <p>Цена: @order.Price BYN</p>
+            <div class="tags">
+                @if (order.Tags.Any())
+                {
+                    foreach (var tag in order.Tags)
+                    {
+                        <a asp-controller="Search" asp-action="Order" asp-route-tagIds=@tag.Id>
+                            <p>@tag.Name</p>
+                        </a>
+                    }
+                }
+            </div>
+            <form method="post" asp-controller="Orders" asp-action="CancelOutgoingOrder">
+                <button type="submit" class="template-button" name="orderId" value=@order.Id>Отменить заказ</button>
+            </form>
+        </div>
+    }
+</div>
